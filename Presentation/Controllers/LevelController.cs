@@ -18,7 +18,7 @@ namespace Host.Controllers
             _levelService = levelService;
         }
         //[Authorize(Roles = "Admin, Teacher, Staff")]
-        [HttpPost("CreateLevel")]
+        [HttpPost("CreateLevel"), Authorize]
         public async Task<IActionResult> CreateAsync([FromForm]CreateLevelRequestModel model)
         {
             var level = await _levelService.CreateLevel(model);
@@ -28,7 +28,7 @@ namespace Host.Controllers
             }
             return BadRequest(level);
         }
-        [HttpGet("GetAllLevels")]
+        [HttpGet("GetAllLevels"), Authorize]
         public async Task<IActionResult> GetAllLevelsAsync()
         {
             var levels = await _levelService.GetLevelsAsync();
@@ -38,7 +38,7 @@ namespace Host.Controllers
             }
             return BadRequest(levels);
         }
-        [HttpGet("GetLevel/{id}")]
+        [HttpGet("GetLevel/{id}"), Authorize]
         public async Task<IActionResult> GetLevelAsync(Guid id)
         {
             var level = await _levelService.GetLevelAsync(id);
@@ -48,8 +48,7 @@ namespace Host.Controllers
             }
             return BadRequest(level);
         }
-        [Authorize("Admin")]
-        [HttpDelete("Delete/{id}")]
+        [HttpDelete("Delete/{id}"), Authorize]
         public async Task<IActionResult> DeleteLevelAsync(Guid id)
         {
             var isDeleted = await _levelService.DeleteLevelAsync(id);
@@ -59,7 +58,7 @@ namespace Host.Controllers
             }
             return Ok(isDeleted);
         }
-        [HttpGet("GetLevelsByStaffId/{id}")]
+        [HttpGet("GetLevelsByStaffId/{id}"), Authorize]
         public async Task<IActionResult> GetLevelsByStaffIdAsync(Guid id)
         {
             var levels = await _levelService.GetLevelsByStaffId(id);

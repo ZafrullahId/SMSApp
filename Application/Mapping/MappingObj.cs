@@ -18,6 +18,8 @@ namespace Application.Mapping
             CreateMap<Level, LevelDto>();
             CreateMap<Paper, PaperDto>()
                 .ForMember(x => x.StartDate, y => y.MapFrom(z => z.StartDate.ToLongDateString()))
+                .ForMember(x => x.SubjectName, y => y.MapFrom(z => z.Subject.Name))
+                .ForMember(x => x.PaperStatus, y => y.MapFrom(z => z.PaperStatus.ToString()))
                 .ForMember(x => x.StartTime, y => y.MapFrom(z => z.StartDate.ToLongTimeString()));
             CreateMap<Question, QuestionDto>();
             CreateMap<Staff, StaffDto>().ForMember(x => x.UserDto, y => y.MapFrom(z => z.User));
@@ -50,13 +52,17 @@ namespace Application.Mapping
             CreateMap<Question, Question>();
             CreateMap<TimeTable, TimeTableDto>();
             CreateMap<SubjectTimeTable, SubjectTimeTableDto>()
-                .ForMember(x => x.SubjectDto, y => y.MapFrom(z => z.Subject));
+                .ForMember(x => x.SubjectDto, y => y.MapFrom(z => z.Subject))
+                .ForMember(x => x.StartDate, y => y.MapFrom(z => z.StartTime.ToLongDateString()))
+                .ForMember(x => x.StartTime, y => y.MapFrom(z => z.StartTime.ToShortTimeString()));
             CreateMap<LevelTimeTable, LevelTimeTableDto>();
 
             CreateMap<CreateExamRequestModel, Exam>();
             CreateMap<CreateLevelRequestModel, Level>();
             CreateMap<CreateOptionRequestModel, Choice>();
             CreateMap<CreatePaperRequestModel, Paper>();
+            CreateMap<CreatePaperRequestModel, SubjectTimeTable>()
+                .ForMember(x => x.StartTime, y => y.MapFrom(z => z.StartDate));
             CreateMap<CreateOptionRequestModel, Choice>();
             CreateMap<CreateQuestionRequestModel, Question>();
             CreateMap<CreateStaffRequestModel, User>();

@@ -33,7 +33,6 @@ namespace Persistence.Auth
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
 
         }
-
         public static bool IsTokenValid(string key, string issuer, string token)
         {
             var mySecret = Encoding.UTF8.GetBytes(key);
@@ -60,7 +59,7 @@ namespace Persistence.Auth
             }
             return true;
         }
-        public static int GetLoginId(string token)
+        public static Guid GetLoginId(string? token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -72,12 +71,12 @@ namespace Persistence.Auth
                 string userId = idClaim.Value;
 
                 // Use the userId as needed
-                return int.Parse(userId);
+                return Guid.Parse(userId);
             }
             else
             {
                 // Handle the case when the ID claim is not present in the token
-                return 0;
+                return Guid.Empty;
             }
         }
     }

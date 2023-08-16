@@ -20,8 +20,7 @@ namespace Host.Controllers
         {
             _examService = examService;
         }
-        //[Authorize(Roles = "Admin")]
-        [HttpPost("CreateExam")]
+        [HttpPost("CreateExam"), Authorize(Roles = "Teacher")]
         public async Task<IActionResult> CreateAsync([FromForm]CreateExamRequestModel model)
         {
             var exam = await _examService.CreateExamAsync(model);
@@ -31,7 +30,7 @@ namespace Host.Controllers
             }
             return BadRequest(exam);
         }
-        [HttpGet("GetAllExams")]
+        [HttpGet("GetAllExams"), Authorize]
         public async Task<IActionResult> GetAllExamAsync()
         {
             var exams = await _examService.GetAllExamsAsync();
@@ -41,7 +40,7 @@ namespace Host.Controllers
             }
             return BadRequest(exams);
         }
-        [HttpGet("GetAllOngoingExams")]
+        [HttpGet("GetAllOngoingExams"), Authorize]
         public async Task<IActionResult> GetOngoingExamsAsync()
         {
             var exams = await _examService.GetAllOngoingExamsAsync();
@@ -51,8 +50,7 @@ namespace Host.Controllers
             }
             return BadRequest(exams);
         }
-        //[Authorize(Roles = "Admin")]
-        [HttpPut("UpdateExamStatus/{id}")]
+        [HttpPut("UpdateExamStatus/{id}"), Authorize]
         public async Task<IActionResult> ChangeExamStatusAsync(Guid id)
         {
             var exam = await _examService.ChangeExamStateAsync(id);

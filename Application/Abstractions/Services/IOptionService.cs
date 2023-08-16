@@ -8,7 +8,7 @@ namespace Application.Abstractions.Services
         Task<BaseResponse> DeleteAsync(Guid id);
         Task<OptionsResponseModel> GetOptionByQuestionIdAsync(Guid id);
         Task<BaseResponse> UpdateAsync(Guid id, UpdateOptionRequestModel model);
-        Task<BaseResponse> SubmitPaperAsync(List<Guid> optionIds, Guid studentId);
+        Task<BaseResponse> SubmitPaperAsync(List<string> selectedOptions, Guid studentId);
         Task<BaseResponse> CheckOptionAsync(Guid optionId, Guid questionId, Guid studentId);
         Task<BaseResponse> CreateOptionsAsync(List<CreateOptionRequestModel> optionRequestModels, Guid questionId);
     }

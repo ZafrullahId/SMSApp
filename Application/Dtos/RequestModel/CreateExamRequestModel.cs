@@ -9,6 +9,6 @@ namespace Application.Dtos.RequestModel
         [Required]
         public Term Term { get; set; }
         [Required]
-        public int Year { get; set; }
+        public string Seasion { get; set; }
     }
 }

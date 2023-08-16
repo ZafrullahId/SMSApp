@@ -33,9 +33,10 @@ namespace Application.Services
         public async Task<LevelsResponseModel> GetLevelsAsync()
         {
             var levels = await _levelRepository.GetAllAsync();
+            var orderedLevel = levels.OrderBy(x => x.Name).ToList();
             if (levels.IsNullOrEmpty()) { return new LevelsResponseModel { Message = "No level yet", Success = false }; }
 
-            var data = _mapper.Map<List<LevelDto>>(levels);
+            var data = _mapper.Map<List<LevelDto>>(orderedLevel);
             return new LevelsResponseModel { Message = "Levels found successfully", Success = true, Data = data };
         }
         public async Task<LevelResponseModel> GetLevelAsync(Guid id)

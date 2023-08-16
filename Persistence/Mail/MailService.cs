@@ -100,7 +100,7 @@ namespace Persistence.Mail
             catch (System.Exception e)
             {
                 Debug.WriteLine(e.Message);
-                throw new System.Exception(e.Message);
+                //throw new System.Exception(e.Message);
             }
         }
         public void GetRecievers(List<MailRequest> mailRequests)

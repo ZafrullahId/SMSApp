@@ -49,26 +49,26 @@ namespace Application.Services
             return new OptionsResponseModel { Message = "Options found", Success = true, Data = data };
         }
 
-        public async Task<BaseResponse> SubmitPaperAsync(List<Guid> optionIds, Guid studentId)
+        public async Task<BaseResponse> SubmitPaperAsync(List<string> selectedOptions, Guid studentUserId)
         {
             double score = 0;
-            var student = await _studentRepository.GetAsync(studentId);
-            if (student is null) { return new BaseResponse { Message = "Student not found", Success = false }; }
+            var student = await _studentRepository.GetStudentAsync(studentUserId);
+            if (student == null) { return new BaseResponse { Message = "Student not found", Success = false }; }
 
-            foreach (var optionId in optionIds)
+            foreach (var selectedOption in selectedOptions)
             {
-                var option = await _optionRepository.GetAsync(x => x.Id == optionId && !x.IsDeleted);
+                var option = await _optionRepository.GetAsync(x => x.Id == Guid.Parse(selectedOption) && !x.IsDeleted);
                 if (option is null) { continue; }
 
                 if (!option.IsCorrect) { continue; }
 
                 var question = await _questionRepository.GetQuestionAsync(option.QuestionId);
-                if (question is null) { return new BaseResponse { Message = "Question not found", Success = false }; }
+                //if (question is null) { return new BaseResponse { Message = "Question not found", Success = false }; }
 
-                if (question.Paper.LevelId != student.LevelId) { return new BaseResponse { Message = "Opps!. You are not eligible to take this exam", Success = false }; }
+                if (question.Paper.LevelId != student.LevelId) { return new BaseResponse { Message = "You are not authorized to take this exam", Success = false }; }
 
-                var studentPaper = await _studentPaperRepository.GetAsync(x => x.PaperId == question.PaperId && x.StudentId == studentId);
-                if (studentPaper is null) { return new BaseResponse { Message = "Oppps something went wrong", Success = false }; }
+                var studentPaper = await _studentPaperRepository.GetAsync(x => x.PaperId == question.PaperId && x.StudentId == student.Id);
+                if (studentPaper is null) { return new BaseResponse { Message = "Something went wrong", Success = false }; }
 
                 studentPaper.Score += question.Marks;
                 score = studentPaper.Score;

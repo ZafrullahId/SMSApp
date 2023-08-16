@@ -7,6 +7,7 @@ namespace Domain.Entity
     {
         public DateTime StartTime { get; set; }
         public TimeSpan Duration { get; set; }
+        public string Location { get; set; }
         public Guid TimeTableId { get; set; }
         public TimeTable TimeTable { get; set; }
         public Guid SubjectId { get; set; }

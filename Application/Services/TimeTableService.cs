@@ -33,8 +33,8 @@ namespace Application.Services
             var level = await _levelRepository.GetAsync(x => x.Id == levelId);
 
             var exist = await _levelTimeTableRepository
-                .ExistsAsync(x => x.Level.Name.Equals(level.Name) && x.TimeTable.Year.Equals(model.Year) && x.TimeTable.Term.Equals(model.Term));
-            if (exist) { return new BaseResponse { Message = $"Time Table for {level.Name} {model.Term} {model.Year} already exist" }; }
+                .ExistsAsync(x => x.Level.Name.Equals(level.Name) && x.TimeTable.Seasion.Equals(model.Seasion) && x.TimeTable.Term.Equals(model.Term));
+            if (exist) { return new BaseResponse { Message = $"Time Table for {level.Name} {model.Term} {model.Seasion} already exist" }; }
 
             var timeTable = _mapper.Map<TimeTable>(model);
             await _timeTableRepository.CreateAsync(timeTable);

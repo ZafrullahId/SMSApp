@@ -30,6 +30,12 @@ namespace Persistence.Repositories
             return await _Context.Papers
                 .Include(x => x.Subject)
                 .SingleOrDefaultAsync(x => x.Id == id && x.IsDeleted == false);
+        } 
+        public async Task<Paper> GetPaperAsync(Guid id)
+        {
+            return await _Context.Papers
+                .Include(x => x.Exam)
+                .SingleOrDefaultAsync(x => x.Id == id && x.IsDeleted == false);
         }
     }
 }

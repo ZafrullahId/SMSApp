@@ -10,6 +10,6 @@ namespace Application.Abstractions.Repositories
 {
     public interface ILevelTimeTableRepository : IBaseRepository<LevelTimeTable>
     {
-        Task<LevelTimeTable> GetAsync(Guid levelId, Term term, int year);
+        Task<LevelTimeTable> GetAsync(Guid levelId, Term term, string seasion);
     }
 }

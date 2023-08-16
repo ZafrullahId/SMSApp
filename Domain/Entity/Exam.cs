@@ -12,8 +12,8 @@ namespace Domain.Entity
         [Required]
         public Term Term { get; set; }
         [Required]
-        public int Year { get; set; }
+        public string Seasion { get; set; } = default!;
         public List<Paper> Papers = new List<Paper>();
-        public List<ExamSubjects> Subjects {get; set; } = new List<ExamSubjects>();
+        public ICollection<ExamSubjects> Subjects {get; set; } = new HashSet<ExamSubjects>();
     }
 }

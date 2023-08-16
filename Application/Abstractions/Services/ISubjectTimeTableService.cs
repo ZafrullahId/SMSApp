@@ -12,7 +12,7 @@ namespace Application.Abstractions.Services
     public interface ISubjectTimeTableService
     {
         Task<SubjectsTimeTableResponseModel> GetTimeTableSubjectsAsync(Guid timeTableId);
-        Task<SubjectsTimeTableResponseModel> GeTimeTableByYearAndTerm(int year, Term term);
-        Task<BaseResponse> CreateTimeTableSubjectAsync(CreateSubjectTimeTableRequestModel model, Guid timeTableId);
+        Task<SubjectsTimeTableResponseModel> GeTimeTableByYearAndTerm(string seasion, Term term);
+        //Task<BaseResponse> CreateTimeTableSubjectAsync(CreateSubjectTimeTableRequestModel model, Guid timeTableId);
     }
 }

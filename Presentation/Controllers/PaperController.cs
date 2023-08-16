@@ -1,7 +1,9 @@
 ﻿using Application.Abstractions.Services;
 using Application.Dtos.RequestModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Persistence.Auth;
 
 namespace Host.Controllers
 {
@@ -10,22 +12,23 @@ namespace Host.Controllers
     public class PaperController : ControllerBase
     {
         private readonly IPaperService _paperService;
-
-        public PaperController(IPaperService paperService)
+        private readonly IOptionService _optionService;
+        public PaperController(IPaperService paperService, IOptionService optionService)
         {
             _paperService = paperService;
+            _optionService = optionService;
         }
-        [HttpPost("CreatePaper/{examId}/{staffId}")]
-        public async Task<IActionResult> CreateAsync([FromForm]CreatePaperRequestModel model, Guid examId, Guid staffId)
+        [HttpPost("CreatePaper/{examId}/{staffId}/{timeTableId}"), Authorize(Roles = "Teacher")]
+        public async Task<IActionResult> CreateAsync([FromForm]CreatePaperRequestModel model, Guid examId, Guid staffId, Guid timeTableId)
         {
-            var paper = await _paperService.Create(model, examId, staffId);
+            var paper = await _paperService.Create(model, examId, staffId, timeTableId);
             if (paper.Success ==  true)
             {
                 return Ok(paper);
             }
             return BadRequest(paper);
         }
-        [HttpGet("GetPaper/{id}")]
+        [HttpGet("GetPaper/{id}"), Authorize]
         public async Task<IActionResult> GetPaperByIdAsync(Guid id)
         {
             var paper = await _paperService.GetPaperByIdAsync(id);
@@ -45,7 +48,7 @@ namespace Host.Controllers
             }
             return BadRequest(papers);
         }
-        [HttpPut("UpdatedPaper/{paperId}")]
+        [HttpPut("UpdatedPaper/{paperId}"), Authorize(Roles = "Teacher")]
         public async Task<IActionResult> UpadetAsync(Guid paperId, [FromForm]UpdatePaperRequestModel model)
         {
             var paper = await _paperService.UpdatePaperAync(paperId, model);
@@ -55,7 +58,7 @@ namespace Host.Controllers
             }
             return BadRequest(paper);
         }
-        [HttpPut("StartPaper/{paperId}")]
+        [HttpPut("StartPaper/{paperId}"), Authorize(Roles = "Teacher,Admin")]
         public async Task<IActionResult> StartPaper(Guid paperId)
         {
             var paper = await _paperService.StartPaperAsync(paperId);
@@ -65,14 +68,27 @@ namespace Host.Controllers
             }
             return BadRequest(paper);
         }
-        [HttpPut("EndPaper/{paperId}")]
+        [HttpPut("EndPaper/{paperId}"), Authorize(Roles = "Teacher,Admin")]
         public async Task<IActionResult> EndPaper(Guid paperId)
         {
-            var paper = await _paperService.StartPaperAsync(paperId);
-            if (paper.Success == true)
-            {
-                return Ok(paper);
-            }
+            var paper = await _paperService.EndPaperAsync(paperId);
+            if (paper.Success == true) { return Ok(paper); }
+            return BadRequest(paper);
+        }
+        [HttpPut("TerminatePaper/{paperId}"), Authorize(Roles = "Teacher,Admin")]
+        public async Task<IActionResult> TerminatePaper(Guid paperId)
+        {
+            var paper = await _paperService.TerminatePaperAsync(paperId);
+            if (paper.Success == true) { return Ok(paper); }
+            return BadRequest(paper);
+        }
+        [HttpPut("SubmitPaper"), Authorize]
+        public async Task<IActionResult> SubmitAsync([FromBody] List<string> selectedOptions)
+        {
+            var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+            var studentUserId = JWTAuthenticationManager.GetLoginId(token);
+            var paper = await _optionService.SubmitPaperAsync(selectedOptions, studentUserId);
+            if (paper.Success == true) { return Ok(paper); }
             return BadRequest(paper);
         }
     }

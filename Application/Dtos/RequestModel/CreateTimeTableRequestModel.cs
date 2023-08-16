@@ -13,6 +13,7 @@ namespace Application.Dtos.RequestModel
         [Required(ErrorMessage = "Please Select a term")]
         public Term Term { get; set; }
         [Required(ErrorMessage = "Please Select a year")]
-        public int Year { get; set; }
+        public string Seasion { get; set; }
+        
     }
 }

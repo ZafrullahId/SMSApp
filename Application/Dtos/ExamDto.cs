@@ -8,6 +8,6 @@ namespace Application.Dtos
         public Guid Id { get; set; }
         public bool IsEnded { get; set; }
         public Term Term { get; set; }
-        public int Year { get; set; }
+        public string Seasion { get; set; }
     }
 }

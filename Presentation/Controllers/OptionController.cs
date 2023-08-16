@@ -17,8 +17,7 @@ namespace Host.Controllers
         {
             _optionService = optionService;
         }
-        [HttpPost("CreateOptions/{questionId}")]
-        [Authorize(Roles = "Staff")]
+        [HttpPost("CreateOptions/{questionId}"), Authorize(Roles = "Teacher")]
         public async Task<IActionResult> CreateAsync([FromBody]List<CreateOptionRequestModel> models, Guid questionId)
         {
             var options = await _optionService.CreateOptionsAsync(models, questionId);
@@ -28,7 +27,7 @@ namespace Host.Controllers
             }
             return BadRequest(options);
         }
-        [HttpGet("GetOptionsByQuestionId/{questionId}")]
+        [HttpGet("GetOptionsByQuestionId/{questionId}"), Authorize]
         public async Task<IActionResult> GetOptionsByQuestionId(Guid questionId)
         {
             var options = await _optionService.GetOptionByQuestionIdAsync(questionId);
@@ -48,7 +47,7 @@ namespace Host.Controllers
             }
             return BadRequest(option);
         }
-        [HttpPut("UpdateOption/{optionId}")]
+        [HttpPut("UpdateOption/{optionId}"), Authorize(Roles = "Teacher")]
         public async Task<IActionResult> UpdateAsync(Guid optionId, [FromForm]UpdateOptionRequestModel model)
         {
             var option = await _optionService.UpdateAsync(optionId, model);
@@ -58,8 +57,7 @@ namespace Host.Controllers
             }
             return BadRequest(option);
         }
-        [HttpDelete("DeleteOption/{optionId}")]
-        [Authorize(Roles = "Staff")]
+        [HttpDelete("DeleteOption/{optionId}"), Authorize(Roles = "Teacher")]
         public async Task<IActionResult> DeleteAsync(Guid optionId)
         {
             var option = await _optionService.DeleteAsync(optionId);
@@ -69,15 +67,6 @@ namespace Host.Controllers
             }
             return BadRequest(option);
         }
-        [HttpPut("SubmitPaper/{studentId}")]
-        public async Task<IActionResult> SubmitAsync(Guid studentId, [FromQuery]List<Guid> ids)
-        {
-            var paper = await _optionService.SubmitPaperAsync(ids, studentId);
-            if (paper.Success == true)
-            {
-                return Ok(paper);
-            }
-            return BadRequest(paper);
-        }
+        
     }
 }

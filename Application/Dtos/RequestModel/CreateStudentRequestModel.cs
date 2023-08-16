@@ -1,12 +1,12 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Application.Dtos.RequestModel
 {
     public class CreateStudentRequestModel
     {
-        public DateTime? DateOfBirth { get; set; }
-        public string? NextOfKin { get; set; }
-        public string Class { get; set; }
-        public CreateUserRequestModel User { get; set; }
+        [Required]
+        public string PhoneNumber { get; set; } = default!;
+        public string LevelName { get; set; } = default!;
     }
 }

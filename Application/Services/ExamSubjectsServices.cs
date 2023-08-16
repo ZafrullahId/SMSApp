@@ -29,14 +29,14 @@ namespace Application.Services
             if (level is null) { return new ExamSubjectsResponseModel { Message = "Level not found", Success = false }; }
 
             var papers = await _paperRepository.GetAllPapersByLevelIdAsync(level.Id, exam.Id);
-            if (papers.Count is 0) { return new ExamSubjectsResponseModel { Message = $"No Pappers found for {level.Name} {exam.Term} {exam.Year}", Success = false }; }
+            if (papers.Count is 0) { return new ExamSubjectsResponseModel { Message = $"No Pappers found for {level.Name} {exam.Term} {exam.Seasion}", Success = false }; }
 
             var examDtoData = _mapper.Map<ExamDto>(exam);
             var levelDtoData = _mapper.Map<LevelDto>(level);
             var subjectDtoDatas = _mapper.Map<List<SubjectDto>>(papers);
             return new ExamSubjectsResponseModel
             {
-                Message = $"Subject for {level.Name} {exam.Term} {exam.Year} successfully retrieved",
+                Message = $"Subject for {level.Name} {exam.Term} {exam.Seasion} successfully retrieved",
                 Success = true,
                 Data = new ExamSubjectsDto { ExamDto = examDtoData, LevelDto = levelDtoData, SubjectDtos = subjectDtoDatas }
             };

@@ -93,10 +93,11 @@ namespace Persistence.Migrations
                     b.Property<DateTime>("LastModifiedOn")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("Term")
-                        .HasColumnType("int");
+                    b.Property<string>("Seasion")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
-                    b.Property<int>("Year")
+                    b.Property<int>("Term")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -205,11 +206,9 @@ namespace Persistence.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("FullName")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<bool>("IsDeleted")
@@ -222,11 +221,9 @@ namespace Persistence.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Password")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("PhoneNumber")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("ProfileImage")
@@ -599,13 +596,17 @@ namespace Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("AdmissionNo")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime>("DateOfBirth")
+                    b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime(6)");
 
                     b.Property<int?>("DeletedBy")
@@ -627,7 +628,6 @@ namespace Persistence.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("NextOfKin")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<Guid>("UserId")
@@ -680,7 +680,6 @@ namespace Persistence.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("TeachersComment")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
@@ -762,6 +761,10 @@ namespace Persistence.Migrations
                     b.Property<DateTime>("LastModifiedOn")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime(6)");
 
@@ -807,10 +810,11 @@ namespace Persistence.Migrations
                     b.Property<DateTime>("LastModifiedOn")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("Term")
-                        .HasColumnType("int");
+                    b.Property<string>("Seasion")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
-                    b.Property<int>("Year")
+                    b.Property<int>("Term")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

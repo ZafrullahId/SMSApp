@@ -11,6 +11,6 @@ namespace Application.Abstractions.Repositories
     public interface ISubjectTimeTableRepository : IBaseRepository<SubjectTimeTable>
     {
         Task<IEnumerable<SubjectTimeTable>> GetSubjectTimeTableAsync(Guid timeTableId);
-        Task<IEnumerable<SubjectTimeTable>> GetSubjectTimeTableAsync(int year, Term term);
+        Task<IEnumerable<SubjectTimeTable>> GetSubjectTimeTableAsync(string seasion, Term term);
     }
 }

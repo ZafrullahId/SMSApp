@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions.Services;
 using Application.Dtos.RequestModel;
 using Microsoft.AspNetCore.Mvc;
+using Persistence.Auth;
 
 namespace Host.Controllers
 {
@@ -14,10 +15,12 @@ namespace Host.Controllers
         {
             _studentPaperService = studentPaperService;
         }
-        [HttpPost("CreateStudentPapers/{studentId}/{paperId}")]
-        public async Task<IActionResult> CreateAsync(Guid studentId, Guid paperId)
+        [HttpPost("CreateStudentPapers/{paperId}")]
+        public async Task<IActionResult> CreateAsync(Guid paperId)
         {
-            var studentPaper = await _studentPaperService.CreateStudentPaperAsync(studentId, paperId);
+            var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+            var userId = JWTAuthenticationManager.GetLoginId(token);
+            var studentPaper = await _studentPaperService.CreateStudentPaperAsync(userId, paperId);
             if (studentPaper.Success ==  true)
             {
                 return Ok(studentPaper);

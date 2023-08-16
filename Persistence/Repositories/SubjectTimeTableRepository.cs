@@ -22,12 +22,13 @@ namespace Persistence.Repositories
             return await _Context.SubjectTimeTables
                 .Where(x => x.TimeTableId == timeTableId)
                 .Include(x => x.Subject)
+                .OrderBy(x => x.StartTime)
                 .ToListAsync();
         }
-        public async Task<IEnumerable<SubjectTimeTable>> GetSubjectTimeTableAsync(int year, Term term)
+        public async Task<IEnumerable<SubjectTimeTable>> GetSubjectTimeTableAsync(string seasion, Term term)
         {
             return await _Context.SubjectTimeTables
-                .Where(x => x.TimeTable.Year == year && x.TimeTable.Term == term)
+                .Where(x => x.TimeTable.Seasion == seasion && x.TimeTable.Term == term)
                 .Include(x => x.Subject)
                 .OrderBy(x => x.TimeTable)
                 .ToListAsync();

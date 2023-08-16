@@ -15,7 +15,7 @@ namespace Host.Controllers
         {
             _studentService = studentService;
         }
-        [HttpPost("Register")]
+        [HttpPost("Add")]
         public async Task<IActionResult> CreateAsync([FromForm]CreateStudentRequestModel model)
         {
             var student = await _studentService.CreateAsync(model);

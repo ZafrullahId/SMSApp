@@ -34,27 +34,34 @@ namespace Application.Services
             _mailService = mailService;
             _mapper = mapper;
         }
-        public async Task<BaseResponse> CreateStudentPaperAsync(Guid studentId, Guid paperId)
+        public async Task<BaseResponse> CreateStudentPaperAsync(Guid studentUserId, Guid paperId)
         {
-            var student = await _studentRepository.GetAsync(studentId);
-            if (student == null) { return new BaseResponse { Message = "Student not found", Success = false }; }
+            var studentUser = await _studentRepository.GetStudentAsync(studentUserId);
+            if (studentUser == null) { return new BaseResponse { Message = "Student not found", Success = false }; }
 
-            var paper = await _paperRepository.GetAsync(x => x.Id == paperId && x.IsDeleted == false);
+            var paper = await _paperRepository.GetPaperAsync(paperId);
             if (paper == null) { return new BaseResponse { Message = "This Paper Dosn't exist", Success = false }; }
 
             if (paper.PaperStatus == PaperStatus.Ended) { return new BaseResponse { Message = "This Paper has been ended", Success = false }; }
 
             if (paper.PaperStatus == PaperStatus.Pending) { return new BaseResponse { Message = "This Paper has not Started yet", Success = false }; }
 
-            var studentSubject = new StudentsPapers
+            if (paper.PaperStatus == PaperStatus.Terminated) { return new BaseResponse { Message = "This Paper has been Terminated", Success = false }; }
+
+            if (paper.Exam.IsEnded) { return new BaseResponse { Message = "Exam Already Ended", Success = false }; }
+
+            var exist = await _studentPaperRepository.ExistsAsync(x => x.StudentId == studentUser.Id && x.PaperId == paperId);
+            if (exist) { return new BaseResponse { Message = "Exam paper has been taking by you already", Success = false }; }
+
+            var studentPaper = new StudentsPapers
             {
-                StudentId = student.Id,
+                StudentId = studentUser.Id,
                 PaperId = paper.Id,
                 Score = 0,
-                Student = student,
+                Student = studentUser,
                 Paper = paper
             };
-            await _studentPaperRepository.CreateAsync(studentSubject);
+            await _studentPaperRepository.CreateAsync(studentPaper);
             await _studentPaperRepository.SaveChangesAsync();
             return new BaseResponse { Message = "Successfully Created", Success = true };
         }

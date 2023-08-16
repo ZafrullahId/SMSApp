@@ -9,7 +9,7 @@ namespace Domain.Entity
     public class TimeTable : AuditableEntity
     {
         public Term Term { get; set; }
-        public int Year { get; set; }
+        public string Seasion { get; set; }
         public IEnumerable<SubjectTimeTable> SubjectTimeTables { get; set; } = new List<SubjectTimeTable>();
         public IEnumerable<LevelTimeTable> LevelTimeTables { get; set; } = new List<LevelTimeTable>();
     }

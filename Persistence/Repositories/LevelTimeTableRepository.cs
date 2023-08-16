@@ -17,10 +17,10 @@ namespace Persistence.Repositories
         {
             _Context = context;
         }
-        public async Task<LevelTimeTable> GetAsync(Guid levelId, Term term, int year)
+        public async Task<LevelTimeTable> GetAsync(Guid levelId, Term term, string seasion)
         {
             return await _Context.LevelTimeTables
-                .Where(x => x.LevelId == levelId && x.TimeTable.Term == term && x.TimeTable.Year == year)
+                .Where(x => x.LevelId == levelId && x.TimeTable.Term == term && x.TimeTable.Seasion == seasion)
                 .Include(x => x.TimeTable)
                 .SingleOrDefaultAsync();
         }

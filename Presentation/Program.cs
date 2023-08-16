@@ -1,4 +1,5 @@
 using System.Net;
+using System.Reflection;
 using System.Text;
 using Application.Abstractions;
 using Application.Abstractions.Repositories;
@@ -16,6 +17,7 @@ using Persistence.Auth;
 using Persistence.Context;
 using Persistence.Mail;
 using Persistence.Repositories;
+using Persistence.SMS;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +27,14 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHangfire(config =>
+    config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseDefaultTypeSerializer()
+   //.UseDashboardStylesheet(Assembly.GetExecutingAssembly(), "sms")
+    .UseMemoryStorage());
+
+builder.Services.AddHangfireServer();
 
 builder.Services.AddDbContext<SMSAppContext>(options =>
     options.UseMySql(
@@ -32,13 +42,7 @@ builder.Services.AddDbContext<SMSAppContext>(options =>
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("SMSAppConnection"))
     )
 );
-builder.Services.AddHangfire(config =>
-    config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-    .UseSimpleAssemblyNameTypeSerializer()
-    .UseDefaultTypeSerializer()
-    .UseMemoryStorage());
 
-builder.Services.AddHangfireServer();
 builder.Services.AddCors(c => c
                 .AddPolicy("SMSApp", builder => builder
                 .AllowAnyHeader()
@@ -49,6 +53,29 @@ builder.Services.AddControllers();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "SMSApp", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
 });
 
 
@@ -66,6 +93,7 @@ builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMailService, MailService>();
+builder.Services.AddScoped<ISMSService, SMSService>();
 builder.Services.AddScoped<ITimeTableService, TimeTableService>();
 builder.Services.AddScoped<IFileUpload, FileUpload>();
 builder.Services.AddScoped<ISubjectTimeTableService, SubjectTimeTableService>();
@@ -93,7 +121,6 @@ builder.Services.AddScoped<ILevelTimeTableRepository, LevelTimeTableRepository>(
 builder.Services.AddScoped<ISubjectTimeTableRepository, SubjectTimeTableRepository>();
 #endregion
 
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 #region|Authentication
 builder.Services.AddScoped<IJWTAuthenticationManager, JWTAuthenticationManager>();
@@ -133,6 +160,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 });
 #endregion
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 
 var app = builder.Build();
 
@@ -157,5 +186,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseHangfireDashboard();
 
 app.Run();

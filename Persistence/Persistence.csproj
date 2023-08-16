@@ -16,6 +16,7 @@
     <PackageReference Include="sib_api_v3_sdk" Version="4.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.32.0" />
+    <PackageReference Include="Twilio" Version="5.81.0" />
   </ItemGroup>
 
   <ItemGroup>
