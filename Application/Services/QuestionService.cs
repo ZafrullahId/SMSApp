@@ -27,7 +27,7 @@ namespace Application.Services
             _optionRepository = optionRepository;
             _questionRepository = questionRepository;
         }
-        public async Task<BaseResponse> CreateQuestionAsync(CreateQuestionRequestModel model, IFormFile? QuestionIMage, Guid paperId)
+        public async Task<BaseResponse> CreateQuestionAsync(CreateQuestionRequestModel model, Guid paperId)
         {
             if (model.Marks == 0 || model.Text == null || model.OptionType == 0 || model.Options.IsNullOrEmpty())
             {
@@ -38,9 +38,9 @@ namespace Application.Services
             if (paper == null) { return new BaseResponse { Message = "Subject not found", Success = false }; }
 
             string imagePath = null;
-            if (QuestionIMage != null)
+            if (model.QuestionIMage != null)
             {
-                imagePath = await _fileUpload.UploadPicAsync(QuestionIMage);
+                imagePath = await _fileUpload.UploadPicAsync(model.QuestionIMage);
             }
             var question = _mapper.Map<Question>(model);
             question.IMageUrl = imagePath;
