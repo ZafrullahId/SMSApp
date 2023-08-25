@@ -17,7 +17,7 @@ namespace Host.Controllers
         }
 
         [HttpPost("CreateQuestion/{paperId}")]
-        public async Task<IActionResult> CreateAsync(CreateQuestionRequestModel model, Guid paperId)
+        public async Task<IActionResult> CreateAsync([FromForm]CreateQuestionRequestModel model, Guid paperId)
         {
             var question = await _questionService.CreateQuestionAsync(model, paperId);
             return question.Success ? Ok(question) : BadRequest(question);
