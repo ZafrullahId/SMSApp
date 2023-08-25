@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Application.Abstractions.Repositories;
+using Application.Dtos;
 using Domain.Entity;
 using Domain.Enum;
 using Microsoft.EntityFrameworkCore;
@@ -15,21 +16,29 @@ namespace Persistence.Repositories
         {
             _Context = context;
         }
-        public async Task<StudentsPapers> GetStudentPaperAsync(Guid examId,  Guid paperId)
+        public async Task<List<StudentsPapers>> GetStudentPaperAsync(Guid paperId)
         {
             return await _Context.StudentsPapers
             .Include(x => x.Student)
             .ThenInclude(x => x.User)
-            .Where(x => x.Paper.ExamId == examId && x.PaperId ==  paperId && x.Paper.PaperStatus == PaperStatus.Ended)
-            .SingleOrDefaultAsync(); 
+            .Where(x => x.Paper.Id == paperId)
+            .ToListAsync(); 
         }
         public async Task<StudentsPapers> GetStudentPaperByStudentId(Guid studentId, Guid paperId)
         {
             return await _Context.StudentsPapers
                 .Include(x => x.Student)
                 .Include(x => x.Paper)
-                .Where(x => x.StudentId == studentId && x.PaperId == paperId && x.Paper.PaperStatus == PaperStatus.Ended).SingleOrDefaultAsync();
+                .Where(x => x.StudentId == studentId && x.PaperId == paperId && x.Paper.PaperStatus == PaperStatus.Ended)
+                .SingleOrDefaultAsync();
         }
-
+        public async Task<List<StudentsPapers>> GetAllAsync(Guid paperId)
+        {
+            return await _Context.StudentsPapers
+                .Where(x => x.PaperId == paperId)
+                .Include(x => x.Student)
+                .ThenInclude(x => x.User)
+                .ToListAsync();
+        }
     }
 }

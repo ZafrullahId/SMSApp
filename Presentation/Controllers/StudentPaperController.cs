@@ -1,5 +1,7 @@
 ﻿using Application.Abstractions.Services;
 using Application.Dtos.RequestModel;
+using Domain.Entity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Persistence.Auth;
 
@@ -15,37 +17,32 @@ namespace Host.Controllers
         {
             _studentPaperService = studentPaperService;
         }
+
         [HttpPost("CreateStudentPapers/{paperId}")]
         public async Task<IActionResult> CreateAsync(Guid paperId)
         {
             var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
             var userId = JWTAuthenticationManager.GetLoginId(token);
             var studentPaper = await _studentPaperService.CreateStudentPaperAsync(userId, paperId);
-            if (studentPaper.Success ==  true)
-            {
-                return Ok(studentPaper);
-            }
-            return BadRequest(studentPaper);
+            return studentPaper.Success ? Ok(studentPaper) : BadRequest(studentPaper);
         }
         [HttpGet("GetStudentPaper/{studentId}/{paperId}")]
         public async Task<IActionResult> GetStudentPaper(Guid studentId, Guid paperId)
         {
             var studentPaper = await _studentPaperService.GetStudentPaper(studentId, paperId);
-            if (studentPaper.Success == true)
-            {
-                return Ok(studentPaper);
-            }
-            return BadRequest(studentPaper);
+            return studentPaper.Success ? Ok(studentPaper) : BadRequest(studentPaper);
         }
-        [HttpGet("GetAllStudentPaper/{studentId}/{paperId}")]
-        public async Task<IActionResult> GetAllStudentPaper(Guid subjectId, Guid levelId, Guid examId)
+        [HttpGet("GetAllStudentPaper/{paperId}")]
+        public async Task<IActionResult> GetAllStudentPaper(Guid paperId)
         {
-            var studentsPapers = await _studentPaperService.GetStudentPapersBySubjectIdAsync(subjectId, levelId, examId);
-            if (studentsPapers.Success == true)
-            {
-                return Ok(studentsPapers);
-            }
-            return BadRequest(studentsPapers);
+            var studentsPapers = await _studentPaperService.GetStudentsPapersAsync(paperId);
+            return studentsPapers.Success ? Ok(studentsPapers) : BadRequest(studentsPapers);
+        }
+        [HttpGet("ReleaseResult/paperId"), Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ReleasePaperResults(Guid paperId)
+        {
+            var result = await _studentPaperService.ReleasePaperResults(paperId);
+            return result.Success ? Ok(result) : BadRequest(result);
         }
     }
 }

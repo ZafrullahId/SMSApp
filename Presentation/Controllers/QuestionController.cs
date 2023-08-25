@@ -15,55 +15,40 @@ namespace Host.Controllers
         {
             _questionService = questionService;
         }
+
         [HttpPost("CreateQuestion/{paperId}")]
-        public async Task<IActionResult> CreateAsync([FromBody]CreateQuestionRequestModel model, Guid paperId)
+        public async Task<IActionResult> CreateAsync(CreateQuestionRequestModel model, [FromForm] CreateQuestionImageRequestModel requestModel, Guid paperId)
         {
-            var question = await _questionService.CreateQuestionAsync(model, paperId);
-            if (question.Success == true)
-            {
-                return Ok(question);
-            }
-            return BadRequest(question);
+            var question = await _questionService.CreateQuestionAsync(model, requestModel.QuestionIMage, paperId);
+            return question.Success ? Ok(question) : BadRequest(question);
         }
+
         [HttpGet("GetQuestion/{id}")]
         public async Task<IActionResult> GetQuestionByIdAsync([FromRoute] Guid id)
         {
             var question = await _questionService.GetQuestionByIdAsync(id);
-            if (question.Success == true)
-            {
-                return Ok(question);
-            }
-            return BadRequest(question);    
+            return question.Success ? Ok(question) : BadRequest(question);
         }
+
         [HttpGet("GetAllQuestions/{paperId}")]
         public async Task<IActionResult> GetAllQuestionAsync([FromRoute] Guid paperId)
         {
             var questions = await _questionService.GetAllQuestionsByPaperIdAsync(paperId);
-            if (questions.Success == true)
-            {
-                return Ok(questions);
-            }
-            return BadRequest(questions);
+            return questions.Success ? Ok(questions) : BadRequest(questions);
         }
+
         [HttpPut("UpdateQuestion/{optionId}")]
         public async Task<IActionResult> UpdateAsync([FromForm]UpdateQuestionRequestModel model, Guid optionId)
         {
             var question = await _questionService.UpdateAsync(optionId, model);
-            if (question.Success == true)
-            {
-                return Ok(question);
-            } 
-            return BadRequest(question);
+            return question.Success ? Ok(question) : BadRequest(question);
         }
+
         [HttpDelete("DeleteQuestion/{questionId}")]
         public async Task<IActionResult> DeleteAsync(Guid questionId)
         {
             var question = await _questionService.DeletAsync(questionId);
-            if(question.Success == true)
-            {
-                return Ok(question);
-            }
-            return BadRequest(question);
+            return question.Success ? Ok(question) : BadRequest(question);
         }
     }
 }

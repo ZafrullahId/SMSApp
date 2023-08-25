@@ -1,3 +1,4 @@
+using Application.Abstractions;
 using Application.Abstractions.Repositories;
 using Application.Abstractions.Services;
 using Application.Dtos;
@@ -6,24 +7,27 @@ using Application.Dtos.ResponseModel;
 using AutoMapper;
 using Domain.Entity;
 using Domain.Enum;
+using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Services
 {
     public class QuestionService : IQuestionService
     {
-        private readonly IQuestionRepository _questionRepository;
-        private readonly IOptionRepository _optionRepository;
-        private readonly IPaperRepository _paperRepository;
         private readonly IMapper _mapper;
-        public QuestionService(IQuestionRepository questionRepository, IOptionRepository optionRepository, IPaperRepository paperRepository, IMapper mapper)
+        private readonly IFileUpload _fileUpload;
+        private readonly IPaperRepository _paperRepository;
+        private readonly IOptionRepository _optionRepository;
+        private readonly IQuestionRepository _questionRepository;
+        public QuestionService(IQuestionRepository questionRepository, IOptionRepository optionRepository, IPaperRepository paperRepository, IMapper mapper, IFileUpload fileUpload)
         {
-            _questionRepository = questionRepository;
-            _optionRepository = optionRepository;
-            _paperRepository = paperRepository;
             _mapper = mapper;
+            _fileUpload = fileUpload;
+            _paperRepository = paperRepository;
+            _optionRepository = optionRepository;
+            _questionRepository = questionRepository;
         }
-        public async Task<BaseResponse> CreateQuestionAsync(CreateQuestionRequestModel model, Guid paperId)
+        public async Task<BaseResponse> CreateQuestionAsync(CreateQuestionRequestModel model, IFormFile? QuestionIMage, Guid paperId)
         {
             if (model.Marks == 0 || model.Text == null || model.OptionType == 0 || model.Options.IsNullOrEmpty())
             {
@@ -33,7 +37,13 @@ namespace Application.Services
             var paper = await _paperRepository.GetAsync(x => x.Id == paperId && x.PaperStatus == PaperStatus.Pending && x.IsDeleted == false);
             if (paper == null) { return new BaseResponse { Message = "Subject not found", Success = false }; }
 
+            string imagePath = null;
+            if (QuestionIMage != null)
+            {
+                imagePath = await _fileUpload.UploadPicAsync(QuestionIMage);
+            }
             var question = _mapper.Map<Question>(model);
+            question.IMageUrl = imagePath;
             question.PaperId = paper.Id;
 
             await _questionRepository.CreateAsync(question);

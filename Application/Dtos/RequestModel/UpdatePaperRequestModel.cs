@@ -8,7 +8,7 @@ namespace Application.Dtos.RequestModel
         [Required]
         public Guid LevelId { get; set; }
         [Required]
-        public Guid SubjectId { get; set; }
+        public string? Subject { get; set; }
         [Required]
         public TimeSpan Duration { get; set; }
         public string Instruction { get; set; }

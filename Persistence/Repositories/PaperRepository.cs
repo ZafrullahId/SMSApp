@@ -19,10 +19,10 @@ namespace Persistence.Repositories
             .Where(x => x.LevelId == levelId && x.ExamId == examId)
             .ToListAsync();
         }
-        public async Task<List<Paper>> GetExamPapersBySubjectIdAsync(Guid examId, Guid subjectId, Guid level)
+        public async Task<List<Paper>> GetExamPapersBySubjectIdAsync(Guid examId, Guid level)
         {
                 return await _Context.Papers
-                .Where(x => x.ExamId == examId && x.SubjectId == subjectId && x.LevelId == level)
+                .Where(x => x.ExamId == examId && x.LevelId == level)
                 .ToListAsync();
         }
         public async Task<Paper> GetByIdAsync(Guid id)

@@ -24,41 +24,25 @@ namespace Host.Controllers
         public async Task<IActionResult> CreateAsync([FromForm]CreateExamRequestModel model)
         {
             var exam = await _examService.CreateExamAsync(model);
-            if (exam.Success == true)
-            {
-                return Ok(exam);
-            }
-            return BadRequest(exam);
+            return exam.Success ? Ok(exam) : BadRequest(exam);
         }
         [HttpGet("GetAllExams"), Authorize]
         public async Task<IActionResult> GetAllExamAsync()
         {
             var exams = await _examService.GetAllExamsAsync();
-            if (exams.Success == true) 
-            { 
-                return Ok(exams);
-            }
-            return BadRequest(exams);
+            return exams.Success ? Ok(exams) : BadRequest(exams);
         }
         [HttpGet("GetAllOngoingExams"), Authorize]
         public async Task<IActionResult> GetOngoingExamsAsync()
         {
             var exams = await _examService.GetAllOngoingExamsAsync();
-            if (exams.Success == true)
-            {
-                return Ok(exams);
-            }
-            return BadRequest(exams);
+            return exams.Success ? Ok(exams) : BadRequest(exams);
         }
         [HttpPut("UpdateExamStatus/{id}"), Authorize]
         public async Task<IActionResult> ChangeExamStatusAsync(Guid id)
         {
             var exam = await _examService.ChangeExamStateAsync(id);
-            if (exam.Success == true)
-            {
-                return BadRequest(exam);
-            }
-            return BadRequest(exam);
+            return exam.Success ? BadRequest(exam) : (IActionResult)BadRequest(exam);
         }
     }
 }

@@ -6,9 +6,12 @@ using Application.Dtos.RequestModel;
 using Application.Dtos.ResponseModel;
 using AutoMapper;
 using Domain.Entity;
+using Domain.Entity.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
+using OfficeOpenXml;
+
 namespace Application.Uploads
 {
     public class FileUpload : IFileUpload
@@ -30,6 +33,25 @@ namespace Application.Uploads
                 using var fileStream = new FileStream(fullPath, FileMode.Create);
                 file.CopyTo(fileStream);
             return imageName;
+        }
+        public static bool CheckFileExtensionAsync(IFormFile file)
+        {
+            if ((file != null && file.Length != 0) && (Path.GetExtension(file.FileName) == ".xlsx" || Path.GetExtension(file.FileName) == ".xml"))
+            {
+                return true;
+            }
+            return false;
+        }
+        public static bool FileHeadFormat(IFormFile file)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using var package = new ExcelPackage(file.OpenReadStream());
+            var worksheet = package.Workbook.Worksheets[0];
+            if (worksheet.Cells[1, 2].Value.ToString() == "Class" && worksheet.Cells[1, 3].Value.ToString() == "Phone")
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

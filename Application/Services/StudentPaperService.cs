@@ -48,7 +48,7 @@ namespace Application.Services
 
             if (paper.PaperStatus == PaperStatus.Terminated) { return new BaseResponse { Message = "This Paper has been Terminated", Success = false }; }
 
-            if (paper.Exam.IsEnded) { return new BaseResponse { Message = "Exam Already Ended", Success = false }; }
+            if (paper.Exam.IsEnded) { return new BaseResponse { Message = "Exam Season Already Ended", Success = false }; }
 
             var exist = await _studentPaperRepository.ExistsAsync(x => x.StudentId == studentUser.Id && x.PaperId == paperId);
             if (exist) { return new BaseResponse { Message = "Exam paper has been taking by you already", Success = false }; }
@@ -81,29 +81,15 @@ namespace Application.Services
             return new StudentPaperResponseModel { Message = "Successful", Success = true, Data = studentSubjectDtoData };
         }
 
-        public async Task<StudentsPapersResponseModel> GetStudentPapersBySubjectIdAsync(Guid subjectId, Guid levelId, Guid examId)
+        public async Task<StudentsPapersResponseModel> GetStudentsPapersAsync(Guid paperId)
         {
-            var level = await _levelRepository.GetAsync(levelId);
-            if (level == null) { return new StudentsPapersResponseModel { Message = "Level not found", Success = false }; }
+            var paper = await _paperRepository.GetAsync(paperId);
+            if (paper is null) { return new StudentsPapersResponseModel { Message = "No paper found", Success = false }; }
 
-            var subject = await _subjectRepository.GetAsync(subjectId);
-            if (subject == null) { return new StudentsPapersResponseModel { Message = "Subject not found", Success = false }; }
+            var studentPapers = await _studentPaperRepository.GetStudentPaperAsync(paperId);
+            if (studentPapers.IsNullOrEmpty()) { return new StudentsPapersResponseModel { Message = "No student has taking this Exam", Success = false }; }
 
-            var exam = await _examRepository.GetAsync(examId);
-            if (exam == null) { return new StudentsPapersResponseModel { Message = "Exam not found", Success = false }; }
-
-            var papers = await _paperRepository.GetExamPapersBySubjectIdAsync(examId, subjectId, levelId);
-            if (papers.Count == 0) { return new StudentsPapersResponseModel { Message = "No Papaers found", Success = false }; }
-
-            List<StudentsPapers> studentsPapers = new();
-            foreach (var paper in papers)
-            {
-                var studentPaper = await _studentPaperRepository.GetStudentPaperAsync(paper.ExamId, paper.Id);
-                studentsPapers.Add(studentPaper);
-            }
-            if (studentsPapers.Count == 0) { return new StudentsPapersResponseModel { Message = "No student has taking this Exam", Success = false }; }
-
-            var studentSubjectDtoDatas = _mapper.Map<List<StudentPapersDto>>(studentsPapers);
+            var studentSubjectDtoDatas = _mapper.Map<List<StudentPapersDto>>(studentPapers);
             return new StudentsPapersResponseModel { Message = "Papers found", Success = true, Data = studentSubjectDtoDatas };
         }
 
@@ -112,20 +98,21 @@ namespace Application.Services
             var paper = await _paperRepository.GetAsync(paperId);
             if (paper == null) { return new BaseResponse { Message = "Paper not found", Success = false }; }
 
-            var students = await _studentRepository.GetStudentsByLevelIdAsync(paper.LevelId);
-            if (students.Count == 0) { return new BaseResponse { Message = "No Student found for this Level", Success = false }; }
 
-            string htmlContent = File.ReadAllText(@"..\..\Infrastructure\File\.html");
-            if (htmlContent == null) { return new BaseResponse { Message = "Html Content is empty", Success = false }; }
+            var studentPaper = await _studentPaperRepository.GetAllAsync(paperId);
+            if (studentPaper.IsNullOrEmpty()) { return new BaseResponse { Message = "No Student sat for this Paper", Success = false }; }
 
-            var mailRequests = students.Select(x => new MailRequest
+            string htmlContent = File.ReadAllText(@"..\Persistence\File\PaperResultOutEmail.html") ?? throw new NullReferenceException();
+            var mailRequests = studentPaper.Select(x => new MailRequest
             {
-                Subject = "",
-                ToEmail = x.User.Email,
-                ToName = x.User.FullName,
-                HtmlContent = htmlContent.Replace("{{FirstName}}", x.User.FullName).Replace("{{Subject}}", paper.Subject.Name)
+                Subject = "Result Release: Check Your Exam Score",
+                ToEmail = x.Student.User.Email,
+                ToName = x.Student.User.FullName,
+                HtmlContent = htmlContent.Replace("{{NAME}}", x.Student.User.FullName).Replace("{{SCORE}}", x.Score.ToString())
             }).ToList();
             BackgroundJob.Enqueue(() => _mailService.GetRecievers(mailRequests));
+            paper.IsReleased = true;
+            await _studentPaperRepository.SaveChangesAsync();
             return new BaseResponse { Message = "Paper Results Successfully Released", Success = true };
         }
     }

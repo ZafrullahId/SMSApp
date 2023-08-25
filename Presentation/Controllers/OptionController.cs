@@ -17,56 +17,41 @@ namespace Host.Controllers
         {
             _optionService = optionService;
         }
+
         [HttpPost("CreateOptions/{questionId}"), Authorize(Roles = "Teacher")]
         public async Task<IActionResult> CreateAsync([FromBody]List<CreateOptionRequestModel> models, Guid questionId)
         {
             var options = await _optionService.CreateOptionsAsync(models, questionId);
-            if (options.Success == true)
-            {
-                return Ok(options);
-            }
-            return BadRequest(options);
+            return options.Success ? Ok(options) : BadRequest(options);
         }
+
         [HttpGet("GetOptionsByQuestionId/{questionId}"), Authorize]
         public async Task<IActionResult> GetOptionsByQuestionId(Guid questionId)
         {
             var options = await _optionService.GetOptionByQuestionIdAsync(questionId);
-            if (options.Success == true)
-            {
-                return Ok(options);
-            }
-            return BadRequest(options);
+            return options.Success ? Ok(options) : BadRequest(options);
         }
+
         [HttpGet("CheckOption/{optionId}/{questionId}/{studentId}")]
         public async Task<IActionResult> CheckOptionAsync(Guid optionId, Guid questionId, Guid studentId)
         {
             var option = await _optionService.CheckOptionAsync(optionId, questionId, studentId);
-            if (option.Success == true)
-            {
-                return Ok(option);
-            }
-            return BadRequest(option);
+            return option.Success ? Ok(option) : BadRequest(option);
         }
+
         [HttpPut("UpdateOption/{optionId}"), Authorize(Roles = "Teacher")]
         public async Task<IActionResult> UpdateAsync(Guid optionId, [FromForm]UpdateOptionRequestModel model)
         {
             var option = await _optionService.UpdateAsync(optionId, model);
-            if (option.Success == true)
-            {
-                return Ok(option);
-            }
-            return BadRequest(option);
+            return option.Success ? Ok(option) : BadRequest(option);
         }
+
         [HttpDelete("DeleteOption/{optionId}"), Authorize(Roles = "Teacher")]
         public async Task<IActionResult> DeleteAsync(Guid optionId)
         {
             var option = await _optionService.DeleteAsync(optionId);
-            if (option.Success == true)
-            {
-                return Ok(option);
-            }
-            return BadRequest(option);
+            return option.Success ? Ok(option) : BadRequest(option);
         }
-        
+
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence.Context;
 
@@ -10,9 +11,10 @@ using Persistence.Context;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(SMSAppContext))]
-    partial class SMSAppContextModelSnapshot : ModelSnapshot
+    [Migration("20230820144818_IsUpdated2")]
+    partial class IsUpdated2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -441,9 +443,6 @@ namespace Persistence.Migrations
 
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<string>("IMageUrl")
-                        .HasColumnType("longtext");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");

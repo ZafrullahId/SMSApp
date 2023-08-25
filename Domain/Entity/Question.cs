@@ -10,6 +10,7 @@ namespace Domain.Entity
         public string Text { get; set; }
         public OptionType OptionType { get; set; }
         public double Marks { get; set; }
+        public string? IMageUrl { get; set; } 
         public Guid PaperId { get; set; }
         public Paper Paper { get; set; }
         public List<Choice> Options { get; set; }

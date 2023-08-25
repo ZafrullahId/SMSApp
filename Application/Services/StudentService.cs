@@ -4,11 +4,16 @@ using Application.Abstractions.Services;
 using Application.Dtos;
 using Application.Dtos.RequestModel;
 using Application.Dtos.ResponseModel;
+using Application.Uploads;
 using AutoMapper;
 using Domain.Entity;
 using Domain.Entity.Identity;
 using Hangfire;
+using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
+using OfficeOpenXml;
+using System.Reflection;
+using Twilio.Rest.Serverless.V1.Service.Asset;
 
 namespace Application.Services
 {
@@ -23,7 +28,8 @@ namespace Application.Services
         private readonly ILevelRepository _levelRepository;
         private readonly IStudentRepository _studentRepository;
         private readonly IUserRoleRepository _userRoleRepository;
-        public StudentService(IStudentRepository studentRepository, IUserRepository userRepository, ILevelRepository levelRepository, IRoleRepository roleRepository, IMailService emailService, IUserRoleRepository userRoleRepository, IFileUpload fileUpload, IMapper mapper = null, ISMSService smsservice = null)
+        private readonly IStaffLevelRepository _staffLevelRepository;
+        public StudentService(IStudentRepository studentRepository, IUserRepository userRepository, ILevelRepository levelRepository, IRoleRepository roleRepository, IMailService emailService, IUserRoleRepository userRoleRepository, IFileUpload fileUpload, IMapper mapper = null, ISMSService smsservice = null, IStaffLevelRepository staffLevelRepository = null)
         {
             _mapper = mapper;
             _fileUpload = fileUpload;
@@ -34,6 +40,7 @@ namespace Application.Services
             _levelRepository = levelRepository;
             _studentRepository = studentRepository;
             _userRoleRepository = userRoleRepository;
+            _staffLevelRepository = staffLevelRepository;
         }
         //public async Task<BaseResponse> CreateAsync(UpdateStudentRequestModel model)
         //{
@@ -75,14 +82,17 @@ namespace Application.Services
         //    return new BaseResponse { Message = "Successfully registered", Success = true, };
         //}
 
-        public async Task<BaseResponse> CreateAsync(CreateStudentRequestModel model)
+        public async Task<BaseResponse> CreateAsync(CreateStudentRequestModel model, Guid staffUserId)
         {
             var level = await _levelRepository.GetAsync(x => x.Name == model.LevelName);
+            var exist = await _staffLevelRepository.ExistsAsync(x => x.Staff.UserId == staffUserId && x.LevelId == level.Id);
+            if (!exist) { return new BaseResponse { Message = "Can <b>Only</b> added by Staff of {LevelName}", Success = false }; }
+
             var role = await _roleRepository.GetAsync(x => x.Name.ToLower() == "student");
             if (role is null) { return new BaseResponse { Message = "Student role not found", Success = false }; }
 
-            var exist = await _userRepository.ExistsAsync(x => x.PhoneNumber == model.PhoneNumber);
-            if (exist) { return new BaseResponse { Message = "Phone number already exist", Success = false }; }
+            var phoneNoExist = await _userRepository.ExistsAsync(x => x.PhoneNumber == model.PhoneNumber);
+            if (phoneNoExist) { return new BaseResponse { Message = "Phone number already exist", Success = false }; }
             var user = new User
             {
                 Password = new Random().Next(2014, 9089).ToString(),
@@ -92,7 +102,7 @@ namespace Application.Services
             await _studentRepository.CreateAsync(student);
             await _studentRepository.SaveChangesAsync();
             string body = $"Congratulations! Your admission number is {student.AdmissionNo} and " +
-                $"your password is {user.Password}. To complete your profile and change your password pls vist <url>";
+                $"your password is {user.Password}. To complete your profile and change your password please visit <url>";
             var sent = _smsservice.SendSmsAsync(model.PhoneNumber, "18787897387", body);
             if (!sent) { return new BaseResponse { Message = "Something went wrong", Success = false }; }
             return new BaseResponse { Message = "Student successfully added", Success = true };
@@ -141,15 +151,55 @@ namespace Application.Services
             var student = await _studentRepository.GetStudentAsync(userId);
             if (student is null) { return new BaseResponse { Message = "Profile not found", Success = false }; }
 
+            var mailExist = await _userRepository.ExistsAsync(x => x.Email == model.Email);
+            if (mailExist) { return new BaseResponse { Message = "Email already in use",Success = false }; }
+
             student.NextOfKin = model.NextOfKin ?? student.NextOfKin;
             student.DateOfBirth = model.DateOfBirth ?? student.DateOfBirth;
             student.User.Password = model.Password ?? student.User.Password;
+            student.User.Email = model.Email ?? student.User.Email;
             student.User.FullName = model.FullName ?? student.User.FullName;
             student.User.PhoneNumber = model.PhoneNumber ?? student.User.PhoneNumber;
-            student.User.ProfileImage = model.ProfileImage ?? student.User.ProfileImage;
+            student.User.ProfileImage = model.ProfileImage != null ? await _fileUpload.UploadPicAsync(model.ProfileImage) : student.User.ProfileImage;
             await _studentRepository.SaveChangesAsync();
             return new BaseResponse { Message = "Sussessfully Updated", Success = true, };
         }
-        
+
+        public async Task<BaseResponse> UploadStudentListFileAsync(IFormFile file)
+        {
+            var isAValidFileExtension = FileUpload.CheckFileExtensionAsync(file);
+            int addedCount = 0;
+            int duplicateCount = 0;
+            int invalidFormatCount = 0;
+            if (!isAValidFileExtension)
+            {
+                return new BaseResponse { Message = "Invalid file format. Only .xlsx and .xml files are allowed. ", Success = false };
+            }
+            var isValidHeadFormat = FileUpload.FileHeadFormat(file);
+            if (!isValidHeadFormat)
+            {
+                return new BaseResponse { Message = "The header should be in the format S/N | Class | Phone", Success = false };
+            }
+            using var package = new ExcelPackage(file.OpenReadStream());
+            var worksheet = package.Workbook.Worksheets[0];
+            for (int row = 2; row <= worksheet.Dimension.Rows; row++)
+            {
+                var user = new User
+                {
+                    Password = new Random().Next(2116, 9089).ToString(),
+                    PhoneNumber = worksheet.Cells[row, 3].Value.ToString()
+                };
+                var level = await _levelRepository.GetAsync(x => x.Name.Equals(worksheet.Cells[row, 2].Value.ToString()));
+                if (level is null) { invalidFormatCount++;  continue; }
+
+                var student = new Student { LevelId = level.Id, UserId = user.Id, User = user, Level = level };
+                var studentExist = await _studentRepository.ExistsAsync(x => x.User.PhoneNumber == user.PhoneNumber && x.LevelId == level.Id);
+                if (studentExist) { duplicateCount++; continue; }
+                await _studentRepository.CreateAsync(student);
+                addedCount++;
+            }
+            await _studentRepository.SaveChangesAsync();
+            return new BaseResponse { Message = $"{addedCount} Student added, {duplicateCount} dupliacte and {invalidFormatCount} wrong input", Success = true };
+        }
     }
 }

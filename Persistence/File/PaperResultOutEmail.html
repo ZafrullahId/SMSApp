@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            background-color: #f9f9f9;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .score {
+            font-size: 24px;
+            color: #007bff;
+            margin-top: 10px;
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Student Result Notification</h1>
+        </div>
+        <div class="result-info">
+            <p>Hello {{NAME}},</p>
+            <p>We are pleased to inform you that the results for your recent examination have been released.</p>
+            <p>Your score for the paper is:</p>
+            <p class="score">{{SCORE}}</p>
+        </div>
+        <div class="message">
+            <p>We would like to congratulate you on your performance! Your hard work and dedication have paid off.</p>
+            <p>If you have any questions or concerns regarding your result, please don't hesitate to contact us.</p>
+        </div>
+        <div class="footer">
+            <p>This is an automated message. Please do not reply to this email.</p>
+            <p>&copy; 2023 Success Extramural Classes Name. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

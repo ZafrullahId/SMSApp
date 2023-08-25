@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence.Context;
 
@@ -10,9 +11,10 @@ using Persistence.Context;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(SMSAppContext))]
-    partial class SMSAppContextModelSnapshot : ModelSnapshot
+    [Migration("20230825152520_qi")]
+    partial class qi
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

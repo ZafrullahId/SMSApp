@@ -17,56 +17,35 @@ namespace Host.Controllers
         {
             _levelService = levelService;
         }
-        //[Authorize(Roles = "Admin, Teacher, Staff")]
         [HttpPost("CreateLevel"), Authorize]
         public async Task<IActionResult> CreateAsync([FromForm]CreateLevelRequestModel model)
         {
             var level = await _levelService.CreateLevel(model);
-            if(level.Success == true)
-            {
-                return Ok(level);
-            }
-            return BadRequest(level);
+            return level.Success ? Ok(level) : BadRequest(level);
         }
         [HttpGet("GetAllLevels"), Authorize]
         public async Task<IActionResult> GetAllLevelsAsync()
         {
             var levels = await _levelService.GetLevelsAsync();
-            if (levels.Success == true)
-            {
-                return Ok(levels);
-            }
-            return BadRequest(levels);
+            return levels.Success ? Ok(levels) : BadRequest(levels);
         }
         [HttpGet("GetLevel/{id}"), Authorize]
         public async Task<IActionResult> GetLevelAsync(Guid id)
         {
             var level = await _levelService.GetLevelAsync(id);
-            if (level.Success == true)
-            {
-                return Ok(level);
-            }
-            return BadRequest(level);
+            return level.Success ? Ok(level) : BadRequest(level);
         }
         [HttpDelete("Delete/{id}"), Authorize]
         public async Task<IActionResult> DeleteLevelAsync(Guid id)
         {
             var isDeleted = await _levelService.DeleteLevelAsync(id);
-            if (!isDeleted.Success)
-            {
-                return BadRequest(isDeleted);
-            }
-            return Ok(isDeleted);
+            return !isDeleted.Success ? BadRequest(isDeleted) : Ok(isDeleted);
         }
         [HttpGet("GetLevelsByStaffId/{id}"), Authorize]
         public async Task<IActionResult> GetLevelsByStaffIdAsync(Guid id)
         {
             var levels = await _levelService.GetLevelsByStaffId(id);
-            if(levels.Success == true)
-            {
-                return Ok(levels);
-            }
-            return BadRequest(levels);
+            return levels.Success ? Ok(levels) : BadRequest(levels);
         }
     }
 }

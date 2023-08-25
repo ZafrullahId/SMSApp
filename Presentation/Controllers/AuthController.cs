@@ -19,11 +19,7 @@ namespace Host.Controllers
         public async Task<IActionResult> LoginAsync([FromForm]LoginRequestModel model)
         {
             var logging = await _userService.LoginAsync(model);
-            if (logging.Success ==  true)
-            {
-                return Ok(logging);
-            }
-            return BadRequest(logging);
+            return logging.Success ? Ok(logging) : BadRequest(logging);
         }
     }
 }

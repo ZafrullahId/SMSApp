@@ -42,7 +42,6 @@ namespace Application.Services
             var exist = await _userRepository.ExistsAsync(x => x.Email == model.Email);
             if (exist) { return new BaseResponse { Message = "User Already Exist", Success = false, }; }
             
-
             var path = await _fileUpload.UploadPicAsync(model.ProfileUpload);
             var user = _mapper.Map<User>(model);
             user.ProfileImage = path;
@@ -115,7 +114,7 @@ namespace Application.Services
             staff.User.Email = model.Email ?? staff.User.Email;
             staff.User.Password = model.Password ?? staff.User.Password;
             staff.User.PhoneNumber = model.PhoneNumber ?? staff.User.PhoneNumber;
-            staff.User.ProfileImage = model.ProfileImage ?? staff.User.ProfileImage;
+            staff.User.ProfileImage = model.ProfileImage != null ? await _fileUpload.UploadPicAsync(model.ProfileImage) : staff.User.ProfileImage;
             await _staffRepository.UpdateAsync(staff);
             return new BaseResponse { Message = "Successfully Updated", Success = true, };
         }

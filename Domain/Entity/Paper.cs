@@ -10,6 +10,7 @@ namespace Domain.Entity
         public DateTime StartDate { get; set; }
         public TimeSpan Duration { get; set; }
         public string Instruction { get; set; }
+        public bool IsReleased { get; set; }
         public Guid LevelId { get; set; }
         public Level Level { get; set; }
         public Guid SubjectId { get; set; }

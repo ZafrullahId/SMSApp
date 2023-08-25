@@ -19,31 +19,21 @@ namespace SMSApp.Controllers
         public async Task<IActionResult> CreateAsync([FromForm]CreateRoleRequestModel model)
         {
             var role = await _roleService.Create(model);
-            if (role.Success ==  true)
-            {
-                return Ok(role);
-            }
-            return BadRequest(role);
+            return role.Success ? Ok(role) : BadRequest(role);
         }
+
         [HttpGet("GetRole/{name}")]
         public async Task<IActionResult> GetRoleAsync([FromRoute]string name)
         {
             var role = await _roleService.GetRoleAsync(name);
-            if (role.Success == true)
-            {
-                return Ok(role);
-            }
-            return BadRequest(role);
+            return role.Success ? Ok(role) : BadRequest(role);
         }
+
         [HttpGet("GetAllRoles")]
         public async Task<IActionResult> GetAllRolesAsync()
         {
             var roles = await _roleService.GetRolesAsync();
-            if (roles.Success == true)
-            {
-                return Ok(roles);
-            }
-            return BadRequest(roles);
+            return roles.Success ? Ok(roles) : BadRequest(roles);
         }
     }
 }

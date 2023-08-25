@@ -1,7 +1,8 @@
 ﻿using Application.Abstractions.Services;
 using Application.Dtos.RequestModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using Persistence.Auth;
 
 namespace Host.Controllers
 {
@@ -10,50 +11,52 @@ namespace Host.Controllers
     public class StudentController : ControllerBase
     {
         private readonly IStudentService _studentService;
-
         public StudentController(IStudentService studentService)
         {
             _studentService = studentService;
         }
-        [HttpPost("Add")]
+
+        [HttpPost("Add"), Authorize(Roles = "Teacher")]
         public async Task<IActionResult> CreateAsync([FromForm]CreateStudentRequestModel model)
         {
-            var student = await _studentService.CreateAsync(model);
-            if (student.Success ==  true)
-            {
-                return Ok(student);
-            }
-            return BadRequest(student);
+            var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+            var staffUserId = JWTAuthenticationManager.GetLoginId(token);
+            var student = await _studentService.CreateAsync(model, staffUserId);
+            return student.Success ? Ok(student) : BadRequest(student);
         }
+
         [HttpGet("GetStudentById/{userId}")]
         public async Task<IActionResult> GetStudentAsync(Guid userId)
         {
             var student = await _studentService.GetStudentByUserIdAsync(userId);
-            if (student.Success == true)
-            {
-                return Ok(student);
-            }
-            return BadRequest(student);
+            return student.Success == true ? Ok(student) : BadRequest(student);
         }
+
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAllAsync()
         {
             var students = await _studentService.GetAllStudentsAsync();
-            if (students.Success == true)
-            {
-                return Ok(students);
-            }
-            return BadRequest(students);
+            return students.Success ? Ok(students) : BadRequest(students);
         }
-        [HttpPut("UpdateStudent/{userId}")]
-        public async Task<IActionResult> UpdateAsync([FromForm]UpdateStudentRequestModel model ,Guid userId)
+
+        [HttpPut("UpdateStudent"), Authorize]
+        public async Task<IActionResult> UpdateAsync([FromForm]UpdateStudentRequestModel model)
         {
-            var student = await _studentService.UpdateStudentAsync(userId, model);
-            if (student.Success == true)
+            var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+            var studentUserId = JWTAuthenticationManager.GetLoginId(token);
+            var student = await _studentService.UpdateStudentAsync(studentUserId, model);
+            return student.Success ? Ok(student) : BadRequest(student);
+        }
+
+        [HttpPost("UploadStudentList"), Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateAsync([FromForm] UploadStudentListFileRequestModel model)
+        {
+            if (ModelState.IsValid)
             {
-                return Ok(student);
+                var upload = await _studentService.UploadStudentListFileAsync(model.File);
+                return upload.Success ? Ok(upload) : BadRequest(upload);
             }
-            return BadRequest(student);
+            return BadRequest(model);
         }
     }
 }

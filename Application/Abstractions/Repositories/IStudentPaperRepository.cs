@@ -4,7 +4,8 @@ namespace Application.Abstractions.Repositories
 {
     public interface IStudentPaperRepository : IBaseRepository<StudentsPapers>
     {
-       Task<StudentsPapers> GetStudentPaperAsync(Guid examId,  Guid paperId);
+       Task<List<StudentsPapers>> GetAllAsync(Guid paperId);
+        Task<List<StudentsPapers>> GetStudentPaperAsync(Guid paperId);
        Task<StudentsPapers> GetStudentPaperByStudentId(Guid studentId, Guid paperId);
     }
 }

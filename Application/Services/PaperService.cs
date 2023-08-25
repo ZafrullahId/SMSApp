@@ -100,13 +100,11 @@ namespace Application.Services
             if (paper is null) { return new BaseResponse { Message = "Paper not found", Success = false }; }
 
             var level = await _levelRepository.GetAsync(model.LevelId);
-            if (level is null) { return new BaseResponse { Message = "Level not found", Success = false }; }
 
-            var subject = await _subjectRepository.GetAsync(model.SubjectId);
-            if (subject is null) { return new BaseResponse { Message = "Subject not found", Success = false }; }
+            var subject = await _subjectRepository.GetAsync(x => x.Name == model.Subject);
 
-            paper.SubjectId = subject.Id;
-            paper.LevelId = level.Id;
+            paper.SubjectId = subject == null ? paper.SubjectId : subject.Id;
+            paper.LevelId = level == null ? paper.LevelId : level.Id;
             paper.Instruction = model.Instruction ?? paper.Instruction;
             paper.Duration = model.Duration;
             paper.StartDate = model.StartDate;
@@ -123,6 +121,7 @@ namespace Application.Services
             return new PapersResponseModel { Message = "paper successfully found", Success = true, Data = papersDtoData };
         }
 
+        // Can the admin start the paper before the paper start date ???
         public async Task<BaseResponse> StartPaperAsync(Guid paperId)
         {
             var paper = await _paperRepository.GetByIdAsync(paperId);
@@ -150,6 +149,7 @@ namespace Application.Services
             return new BaseResponse { Message = "Paper Started Successfully", Success = true };
         }
 
+        // A mail should be sent for this method
         public async Task<BaseResponse> EndPaperAsync(Guid paperId)
         {
             var paper = await _paperRepository.GetAsync(x => x.Id == paperId);
@@ -163,6 +163,7 @@ namespace Application.Services
             return new BaseResponse { Message = "Paper Ended Successfully", Success = true };
         }
 
+        // A mail should be sent for this method
         public async Task<BaseResponse> TerminatePaperAsync(Guid paperId)
         {
             var paper = await _paperRepository.GetAsync(x => x.Id == paperId);
