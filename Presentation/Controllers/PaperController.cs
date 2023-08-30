@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Services;
 using Application.Dtos.RequestModel;
+using Application.Filter;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -34,9 +35,10 @@ namespace Host.Controllers
         }
 
         [HttpGet("GetAllPaper/{examId}/{levelId}")]
-        public async Task<IActionResult> GetAllPaperAsync(Guid examId, Guid levelId)
+        public async Task<IActionResult> GetAllPaperAsync([FromQuery]PaginationFilter filter,Guid examId, Guid levelId)
         {
-            var papers = await _paperService.GetAllPapersByLevelIdAsync(levelId, examId);
+            var route = Request.Path.Value;
+            var papers = await _paperService.GetAllPapersByLevelIdAsync(filter, route, levelId, examId);
             return papers.Success ? Ok(papers) : BadRequest(papers);
         }
 

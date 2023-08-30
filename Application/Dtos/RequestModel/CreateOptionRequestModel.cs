@@ -12,7 +12,7 @@ namespace Application.Dtos.RequestModel
     }
     public class UpdateOptionRequestModel
     {
-        public string Text { get; set; }
+        public string Text { get; set; } = default!;
         public bool IsCorrect { get; set; }
     }
     public class MetadataValueModelBinder : IModelBinder

@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Services;
 using Application.Dtos.RequestModel;
+using Application.Filter;
 using Domain.Entity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,9 +34,10 @@ namespace Host.Controllers
             return studentPaper.Success ? Ok(studentPaper) : BadRequest(studentPaper);
         }
         [HttpGet("GetAllStudentPaper/{paperId}")]
-        public async Task<IActionResult> GetAllStudentPaper(Guid paperId)
+        public async Task<IActionResult> GetAllStudentPaper([FromQuery]PaginationFilter filter, Guid paperId)
         {
-            var studentsPapers = await _studentPaperService.GetStudentsPapersAsync(paperId);
+            var route = Request.Path.Value;
+            var studentsPapers = await _studentPaperService.GetStudentsPapersAsync(filter, route, paperId);
             return studentsPapers.Success ? Ok(studentsPapers) : BadRequest(studentsPapers);
         }
         [HttpGet("ReleaseResult/paperId"), Authorize(Roles = "Admin")]

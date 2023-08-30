@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Services;
 using Application.Dtos.RequestModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -15,7 +16,8 @@ namespace Host.Controllers
         {
             _userService = userService;
         }
-        [HttpPost("Login")]
+        [AllowAnonymous]
+        [HttpPost("Access")]
         public async Task<IActionResult> LoginAsync([FromForm]LoginRequestModel model)
         {
             var logging = await _userService.LoginAsync(model);

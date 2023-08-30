@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions.Repositories;
 using Application.Abstractions.Services;
 using Application.Dtos.RequestModel;
+using Application.Filter;
 using Domain.Entity;
 using Domain.Enum;
 using Microsoft.AspNetCore.Authorization;
@@ -34,19 +35,11 @@ namespace Host.Controllers
             return BadRequest(timeTable);
         
         }
-        //[HttpPost("CreateTimeTableSubject/{timeTableId}")]
-        //public async Task<IActionResult> CreateTimeTableSubjectAsync([FromForm] CreateSubjectTimeTableRequestModel model, Guid timeTableId)
-        //{
-        //    if (!ModelState.IsValid) return BadRequest(ModelState);
-        //    var timeTable = await _subjectTimeTableService.CreateTimeTableSubjectAsync(model, timeTableId);
-        //    if (timeTable.Success) return Ok(timeTable);
-        //    return BadRequest(timeTable);
-        //}
         [HttpGet("GetTimeTableSubjects/{timeTableId}"), Authorize]
-        public async Task<IActionResult> GetTimeTableSubjectsAsync(Guid timeTableId)
+        public async Task<IActionResult> GetTimeTableSubjectsAsync([FromQuery] PaginationFilter filter, Guid timeTableId)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            var timeTable = await _subjectTimeTableService.GetTimeTableSubjectsAsync(timeTableId);
+            var route = Request.Path.Value;
+            var timeTable = await _subjectTimeTableService.GetTimeTableSubjectsAsync(filter, route, timeTableId);
             if (timeTable.Success) return Ok(timeTable);
             return BadRequest(timeTable);
         }
@@ -59,10 +52,10 @@ namespace Host.Controllers
             return BadRequest(timeTable);
         }
         [HttpGet("GetLevelTimeTable/{levelId}/{term}/{seasion}")]
-        public async Task<IActionResult> GetLevelTimeTableAsync(Guid levelId, Term term, string seasion)
+        public async Task<IActionResult> GetLevelTimeTableAsync([FromQuery]PaginationFilter filter, Guid levelId, Term term, string seasion)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            var timeTable = await _levelTimeTableService.GetLevelTimeTableAsync(levelId, term, seasion);
+            var route = Request.Path.Value;
+            var timeTable = await _levelTimeTableService.GetLevelTimeTableAsync(filter, route, levelId, term, seasion);
             if (timeTable.Success) return Ok(timeTable);
             return BadRequest(timeTable);
         }

@@ -1,4 +1,6 @@
-﻿using Application.Dtos.ResponseModel;
+﻿using Application.Dtos;
+using Application.Dtos.ResponseModel;
+using Application.Filter;
 using Domain.Enum;
 using System;
 using System.Collections.Generic;
@@ -10,6 +12,6 @@ namespace Application.Abstractions.Repositories
 {
     public interface ILevelTimeTableService
     {
-        Task<LevelTimeTableResponseModel> GetLevelTimeTableAsync(Guid levelId, Term term, string seasion);
+        Task<Responses<SubjectTimeTableDto>> GetLevelTimeTableAsync(PaginationFilter filter, string route, Guid levelId, Term term, string seasion);
     }
 }

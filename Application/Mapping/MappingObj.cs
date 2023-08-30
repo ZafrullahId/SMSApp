@@ -25,6 +25,10 @@ namespace Application.Mapping
             CreateMap<Staff, StaffDto>().ForMember(x => x.UserDto, y => y.MapFrom(z => z.User));
             CreateMap<User, UserDto>();
             CreateMap<Role, RoleDto>();
+            CreateMap<Paper, SubjectDto>()
+                .ForMember(c => c.Id, y => y.MapFrom(z => z.Subject.Id))
+                .ForMember(c => c.Name, y => y.MapFrom(z => z.Subject.Name))
+                .ForMember(c => c.Description, y => y.MapFrom(z => z.Subject.Description));
             CreateMap<UserRole, RoleDto>()
                 .ForMember(x => x.Id, y => y.MapFrom(z => z.Role.Id))
                 .ForMember(x => x.Name, y => y.MapFrom(z => z.Role.Name))

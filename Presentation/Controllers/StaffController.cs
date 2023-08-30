@@ -25,7 +25,7 @@ namespace Host.Controllers
         [HttpGet("GetStaffById/{id}")]
         public async Task<IActionResult> GetStaffAsync([FromRoute] Guid id)
         {
-            var staff = await _staffService.GetStaffByIdAsync(id);
+            var staff = await _staffService.GetAsync(id);
             return staff.Success ? Ok(staff) : BadRequest(staff);
         }
 

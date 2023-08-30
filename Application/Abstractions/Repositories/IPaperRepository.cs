@@ -8,5 +8,6 @@ namespace Application.Abstractions.Repositories
         Task<Paper> GetPaperAsync(Guid id);
         Task<List<Paper>> GetAllPapersByLevelIdAsync(Guid levelId, Guid examId);
         Task<List<Paper>> GetExamPapersBySubjectIdAsync(Guid examId, Guid level);
+        Task<List<Paper>> GetAllPapersByLevelIdAsync(Guid levelId, Guid examId, int skipLength, int takeLength);
     }
 }

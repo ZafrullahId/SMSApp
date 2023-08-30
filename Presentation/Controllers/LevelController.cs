@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Services;
 using Application.Dtos.RequestModel;
+using Application.Filter;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,9 +25,10 @@ namespace Host.Controllers
             return level.Success ? Ok(level) : BadRequest(level);
         }
         [HttpGet("GetAllLevels"), Authorize]
-        public async Task<IActionResult> GetAllLevelsAsync()
+        public async Task<IActionResult> GetAllLevelsAsync([FromQuery] PaginationFilter filter)
         {
-            var levels = await _levelService.GetLevelsAsync();
+            var route = Request.Path.Value;
+            var levels = await _levelService.GetLevelsAsync(filter, route);
             return levels.Success ? Ok(levels) : BadRequest(levels);
         }
         [HttpGet("GetLevel/{id}"), Authorize]

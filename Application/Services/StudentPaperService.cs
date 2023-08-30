@@ -4,35 +4,34 @@ using Application.Abstractions.Services;
 using Application.Dtos;
 using Application.Dtos.RequestModel;
 using Application.Dtos.ResponseModel;
+using Application.Filter;
+using Application.Helpers;
 using AutoMapper;
 using Domain.Entity;
 using Domain.Enum;
 using Hangfire;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Services
 {
     public class StudentPaperService : IStudentPaperService
     {
-        private readonly IStudentRepository _studentRepository;
-        private readonly IPaperRepository _paperRepository;
-        private readonly IStudentPaperRepository _studentPaperRepository;
-        private readonly IExamRepository _examRepository;
-        private readonly ILevelRepository _levelRepository;
-        private readonly ISubjectRepository _subjectRepository;
-        private readonly IMailService _mailService;
         private readonly IMapper _mapper;
+        private readonly IUriService _uriService;
+        private readonly IMailService _mailService;
+        private readonly IPaperRepository _paperRepository;
+        private readonly IStudentRepository _studentRepository;
+        private readonly IStudentPaperRepository _studentPaperRepository;
 
-        public StudentPaperService(IStudentRepository studentRepository, IStudentPaperRepository studentSubjectRepository, IExamRepository examRepository, IPaperRepository paperRepository, ISubjectRepository subjectRepository, ILevelRepository levelRepository, IMailService mailService, IMapper mapper)
+        public StudentPaperService(IStudentRepository studentRepository, IStudentPaperRepository studentSubjectRepository, IPaperRepository paperRepository, IMailService mailService, IMapper mapper, IUriService uriService)
         {
-            _examRepository = examRepository;
+            _mapper = mapper;
+            _uriService = uriService;
+            _mailService = mailService;
+            _paperRepository = paperRepository;
             _studentRepository = studentRepository;
             _studentPaperRepository = studentSubjectRepository;
-            _paperRepository = paperRepository;
-            _subjectRepository = subjectRepository;
-            _levelRepository = levelRepository;
-            _mailService = mailService;
-            _mapper = mapper;
         }
         public async Task<BaseResponse> CreateStudentPaperAsync(Guid studentUserId, Guid paperId)
         {
@@ -66,31 +65,34 @@ namespace Application.Services
             return new BaseResponse { Message = "Successfully Created", Success = true };
         }
 
-        public async Task<StudentPaperResponseModel> GetStudentPaper(Guid studentId, Guid paperId)
+        public async Task<Response<StudentPapersDto>> GetStudentPaper(Guid studentId, Guid paperId)
         {
             var student = await _studentRepository.GetAsync(studentId);
-            if (student == null) { return new StudentPaperResponseModel { Message = "Subject not found", Success = false }; }
+            if (student == null) { return new Response<StudentPapersDto> { Message = "Subject not found", Success = false }; }
 
             var paper = await _paperRepository.GetAsync(paperId);
-            if (paper == null) { return new StudentPaperResponseModel { Message = "Paper not found", Success = false }; }
+            if (paper == null) { return new Response<StudentPapersDto> { Message = "Paper not found", Success = false }; }
 
             var studentSubject = await _studentPaperRepository.GetStudentPaperByStudentId(studentId, paperId);
-            if (studentSubject == null) { return new StudentPaperResponseModel { Message = "No Student has done this exam", Success = false }; }
+            if (studentSubject == null) { return new Response<StudentPapersDto> { Message = "No Student has done this exam", Success = false }; }
 
             var studentSubjectDtoData = _mapper.Map<StudentPapersDto>(studentSubject);
-            return new StudentPaperResponseModel { Message = "Successful", Success = true, Data = studentSubjectDtoData };
+            return new Response<StudentPapersDto> { Message = "Successful", Success = true, Data = studentSubjectDtoData };
         }
 
-        public async Task<StudentsPapersResponseModel> GetStudentsPapersAsync(Guid paperId)
+        public async Task<Responses<StudentPapersDto>> GetStudentsPapersAsync(PaginationFilter filter, string route, Guid paperId)
         {
             var paper = await _paperRepository.GetAsync(paperId);
-            if (paper is null) { return new StudentsPapersResponseModel { Message = "No paper found", Success = false }; }
+            if (paper is null) { return new Responses<StudentPapersDto> { Message = "No paper found", Success = false }; }
 
-            var studentPapers = await _studentPaperRepository.GetStudentPaperAsync(paperId);
-            if (studentPapers.IsNullOrEmpty()) { return new StudentsPapersResponseModel { Message = "No student has taking this Exam", Success = false }; }
+            var studentPapers = await _studentPaperRepository.GetStudentPaperAsync(paperId, filter.PageNumber, filter.PageSize);
+            if (studentPapers.IsNullOrEmpty()) { return new Responses<StudentPapersDto> { Message = "No student has taking this Exam", Success = false }; }
 
-            var studentSubjectDtoDatas = _mapper.Map<List<StudentPapersDto>>(studentPapers);
-            return new StudentsPapersResponseModel { Message = "Papers found", Success = true, Data = studentSubjectDtoDatas };
+            var studentPaperDtoData = _mapper.Map<List<StudentPapersDto>>(studentPapers);
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            var totalRecords = await _studentPaperRepository.CountAsync(x => x.PaperId == paperId);
+            var pagedReponse = PaginationHelper.CreatePagedReponse<StudentPapersDto>(studentPaperDtoData, validFilter, totalRecords, _uriService, route);
+            return new Responses<StudentPapersDto> { Message = "Papers found", Success = true, Data = pagedReponse };
         }
 
         public async Task<BaseResponse> ReleasePaperResults(Guid paperId)

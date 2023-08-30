@@ -3,6 +3,7 @@ using Application.Abstractions.Repositories;
 using Application.Abstractions.Services;
 using Application.Dtos;
 using Application.Dtos.ResponseModel;
+using Domain.Entity;
 
 namespace Application.Services
 {
@@ -20,21 +21,21 @@ namespace Application.Services
             _paperRepository = paperRepository;
             _mapper = mapper;
         }
-        public async Task<ExamSubjectsResponseModel> GetExamSubjectsByLevelIdAsync(Guid examId, Guid levelId)
+        public async Task<Response<ExamSubjectsDto>> GetExamSubjectsByLevelIdAsync(Guid examId, Guid levelId)
         {
             var exam = await _examRepository.GetAsync(examId);
-            if (exam is null) { return new ExamSubjectsResponseModel { Message = "Exam not found", Success = false }; }
+            if (exam is null) { return new Response<ExamSubjectsDto> { Message = "Exam not found", Success = false }; }
 
             var level = await _levelRepository.GetAsync(levelId);
-            if (level is null) { return new ExamSubjectsResponseModel { Message = "Level not found", Success = false }; }
+            if (level is null) { return new Response<ExamSubjectsDto> { Message = "Level not found", Success = false }; }
 
             var papers = await _paperRepository.GetAllPapersByLevelIdAsync(level.Id, exam.Id);
-            if (papers.Count is 0) { return new ExamSubjectsResponseModel { Message = $"No Pappers found for {level.Name} {exam.Term} {exam.Seasion}", Success = false }; }
+            if (papers.Count is 0) { return new Response<ExamSubjectsDto> { Message = $"No Pappers found for {level.Name} {exam.Term} {exam.Seasion}", Success = false }; }
 
             var examDtoData = _mapper.Map<ExamDto>(exam);
             var levelDtoData = _mapper.Map<LevelDto>(level);
             var subjectDtoDatas = _mapper.Map<List<SubjectDto>>(papers);
-            return new ExamSubjectsResponseModel
+            return new Response<ExamSubjectsDto>
             {
                 Message = $"Subject for {level.Name} {exam.Term} {exam.Seasion} successfully retrieved",
                 Success = true,

@@ -4,12 +4,15 @@ using Application.Abstractions.Services;
 using Application.Dtos;
 using Application.Dtos.RequestModel;
 using Application.Dtos.ResponseModel;
+using Application.Filter;
+using Application.Helpers;
 using Application.Uploads;
 using AutoMapper;
 using Domain.Entity;
 using Domain.Entity.Identity;
 using Hangfire;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.IdentityModel.Tokens;
 using OfficeOpenXml;
 using System.Reflection;
@@ -22,6 +25,7 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly IFileUpload _fileUpload;
         private readonly ISMSService _smsservice;
+        private readonly IUriService _uriService;
         private readonly IMailService _emailService;
         private readonly IRoleRepository _roleRepository;
         private readonly IUserRepository _userRepository;
@@ -29,11 +33,12 @@ namespace Application.Services
         private readonly IStudentRepository _studentRepository;
         private readonly IUserRoleRepository _userRoleRepository;
         private readonly IStaffLevelRepository _staffLevelRepository;
-        public StudentService(IStudentRepository studentRepository, IUserRepository userRepository, ILevelRepository levelRepository, IRoleRepository roleRepository, IMailService emailService, IUserRoleRepository userRoleRepository, IFileUpload fileUpload, IMapper mapper = null, ISMSService smsservice = null, IStaffLevelRepository staffLevelRepository = null)
+        public StudentService(IStudentRepository studentRepository, IUserRepository userRepository, ILevelRepository levelRepository, IRoleRepository roleRepository, IMailService emailService, IUserRoleRepository userRoleRepository, IFileUpload fileUpload, IMapper mapper, ISMSService smsservice, IStaffLevelRepository staffLevelRepository, IUriService uriService)
         {
             _mapper = mapper;
-            _fileUpload = fileUpload;
             _smsservice = smsservice;
+            _fileUpload = fileUpload;
+            _uriService = uriService;
             _emailService = emailService;
             _roleRepository = roleRepository;
             _userRepository = userRepository;
@@ -107,27 +112,27 @@ namespace Application.Services
             if (!sent) { return new BaseResponse { Message = "Something went wrong", Success = false }; }
             return new BaseResponse { Message = "Student successfully added", Success = true };
         }
-        public async Task<StudentResponseModel> GetStudentByUserIdAsync(Guid userId)
+        public async Task<Response<StudentDto>> GetStudentByUserIdAsync(Guid userId)
         {
             var user = await _userRepository.GetAsync(x => x.Id == userId);
-            if (user is null) { return new StudentResponseModel { Message = "User not found", Success = false }; }
+            if (user is null) { return new Response<StudentDto> { Message = "User not found", Success = false }; }
 
             var student = await _studentRepository.GetAsync(x => x.UserId == userId);
-            if (student is null) { return new StudentResponseModel { Message = "Student not found", Success = false }; }
+            if (student is null) { return new Response<StudentDto> { Message = "Student not found", Success = false }; }
 
             var level = await _levelRepository.GetAsync(x => x.Id == student.LevelId);
-            if (level is null) { return new StudentResponseModel { Message = "Level not found", Success = false }; }
+            if (level is null) { return new Response<StudentDto> { Message = "Level not found", Success = false }; }
 
             student.User = user;
             student.Level = level;
             var studentDtoData = _mapper.Map<StudentDto>(student);
-            return new StudentResponseModel { Message = "Student Successfully retrieved", Success = true, Data = studentDtoData };
+            return new Response<StudentDto> { Message = "Student Successfully retrieved", Success = true, Data = studentDtoData };
         }
 
-        public async Task<StudentsResponseModel> GetAllStudentsAsync()
+        public async Task<Responses<StudentDto>> GetAllStudentsAsync(PaginationFilter filter, string route)
         {
-            var students = await _studentRepository.GetAllAsync();
-            if (students.IsNullOrEmpty()) { return new StudentsResponseModel { Message = "No student yet", Success = false }; }
+            var students = await _studentRepository.GetFilterAsync(filter.PageNumber, filter.PageSize);
+            if (students.IsNullOrEmpty()) { return new Responses<StudentDto> { Message = "No student yet", Success = false }; }
 
             List<StudentDto> studentDtos = new();
 
@@ -135,7 +140,7 @@ namespace Application.Services
             {
 
                 var user = await _userRepository.GetAsync(x => x.Id == student.UserId);
-                if (user is null) { return new StudentsResponseModel { Message = "User not found", Success = false }; }
+                if (user is null) { return new Responses<StudentDto> { Message = "User not found", Success = false }; }
 
                 var level = await _levelRepository.GetAsync(x => x.Id == student.LevelId);
                 student.User = user;
@@ -143,7 +148,10 @@ namespace Application.Services
                 var studentDtoData = _mapper.Map<StudentDto>(student);
                 studentDtos.Add(studentDtoData);
             }
-            return new StudentsResponseModel { Message = "Students successfully retrieved", Success = true, Data = studentDtos };
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            var totalRecords = await _studentRepository.CountAsync();
+            var pagedReponse = PaginationHelper.CreatePagedReponse<StudentDto>(studentDtos, validFilter, totalRecords, _uriService, route);
+            return new Responses<StudentDto> { Message = "Students successfully retrieved", Success = true, Data = pagedReponse };
         }
 
         public async Task<BaseResponse> UpdateStudentAsync(Guid userId, UpdateStudentRequestModel model)

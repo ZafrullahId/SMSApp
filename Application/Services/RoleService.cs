@@ -30,21 +30,21 @@ namespace Application.Services
             await _roleRepository.SaveChangesAsync();
             return new BaseResponse { Success = true, Message = "Role Successfully Created" };
         }
-        public async Task<RoleResponseModel> GetRoleAsync(string Name)
+        public async Task<Response<RoleDto>> GetRoleAsync(string Name)
         {
             var role = await _roleRepository.GetAsync(x => x.Name == Name);
-            if (role == null) { return new RoleResponseModel { Message = "Role not found", Success = false, }; }
+            if (role == null) { return new Response<RoleDto> { Message = "Role not found", Success = false, }; }
 
             var roleDtoData = _mapper.Map<RoleDto>(role);
-            return new RoleResponseModel { Message = "Role found", Success = true, Data = roleDtoData };
+            return new Response<RoleDto> { Message = "Role found", Success = true, Data = roleDtoData };
         }
-        public async Task<RolesResponseModel> GetRolesAsync()
+        public async Task<Results<RoleDto>> GetRolesAsync()
         {
             var roles = await _roleRepository.GetAllAsync();
-            if (roles.IsNullOrEmpty()) { return new RolesResponseModel { Message = "No role found", Success = false, }; }
+            if (roles.IsNullOrEmpty()) { return new Results<RoleDto> { Message = "No role found", Success = false, }; }
 
             var roleDtoDatas = _mapper.Map<List<RoleDto>>(roles);
-            return new RolesResponseModel { Success = true, Message = "Roles successfully found", Data = roleDtoDatas };
+            return new Results<RoleDto> { Success = true, Message = "Roles successfully found", Data = roleDtoDatas };
         }
     }
 }

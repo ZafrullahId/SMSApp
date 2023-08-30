@@ -3,23 +3,28 @@ using Application.Abstractions.Services;
 using Application.Dtos;
 using Application.Dtos.RequestModel;
 using Application.Dtos.ResponseModel;
+using Application.Filter;
+using Application.Helpers;
 using AutoMapper;
 using Domain.Entity;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.IdentityModel.Tokens;
 namespace Application.Services
 {
     public class LevelService : ILevelService
     {
+        private readonly IMapper _mapper;
+        private readonly IUriService _uriService;
         private readonly ILevelRepository _levelRepository;
         private readonly IStaffRepository _staffRepository;
         private readonly IStaffLevelRepository _staffLevelRepository;
-        private readonly IMapper _mapper;
-        public LevelService(ILevelRepository levelRepository, IStaffLevelRepository staffLevelRepository, IStaffRepository staffRepository, IMapper mapper)
+        public LevelService(ILevelRepository levelRepository, IStaffLevelRepository staffLevelRepository, IStaffRepository staffRepository, IMapper mapper, IUriService uriService)
         {
             _levelRepository = levelRepository;
             _staffRepository = staffRepository;
             _staffLevelRepository = staffLevelRepository;
             _mapper = mapper;
+            _uriService = uriService;
         }
         public async Task<BaseResponse> CreateLevel(CreateLevelRequestModel model)
         {
@@ -30,40 +35,43 @@ namespace Application.Services
             await _levelRepository.SaveChangesAsync();
             return new BaseResponse { Message = "Successfully Created", Success = true };
         }
-        public async Task<LevelsResponseModel> GetLevelsAsync()
+        public async Task<Responses<LevelDto>> GetLevelsAsync(PaginationFilter filter, string route)
         {
-            var levels = await _levelRepository.GetAllAsync();
+            var levels = await _levelRepository.GetFilterAsync(filter.PageNumber, filter.PageSize);
             var orderedLevel = levels.OrderBy(x => x.Name).ToList();
-            if (levels.IsNullOrEmpty()) { return new LevelsResponseModel { Message = "No level yet", Success = false }; }
+            if (levels.IsNullOrEmpty()) { return new Responses<LevelDto> { Message = "No level yet", Success = false }; }
 
             var data = _mapper.Map<List<LevelDto>>(orderedLevel);
-            return new LevelsResponseModel { Message = "Levels found successfully", Success = true, Data = data };
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            var totalRecords = await _levelRepository.CountAsync();
+            var pagedReponse = PaginationHelper.CreatePagedReponse<LevelDto>(data, validFilter, totalRecords, _uriService, route);
+            return new Responses<LevelDto> { Message = "Levels found successfully", Success = true, Data = pagedReponse };
         }
-        public async Task<LevelResponseModel> GetLevelAsync(Guid id)
+        public async Task<Response<LevelDto>> GetLevelAsync(Guid id)
         {
             var level = await _levelRepository.GetAsync(x => x.Id == id && x.IsDeleted == false);
-            if (level is null) { return new LevelResponseModel { Message = "Level not found", Success = false }; }
+            if (level is null) { return new Response<LevelDto> { Message = "Level not found", Success = false }; }
 
             var data = _mapper.Map<LevelDto>(level);
-            return new LevelResponseModel { Message = "Level found successfully", Success = true, Data = data };
+            return new Response<LevelDto> { Message = "Level found successfully", Success = true, Data = data };
         }
         public async Task<BaseResponse> DeleteLevelAsync(Guid id)
         {
             var level = await _levelRepository.GetAsync(x => x.Id == id && x.IsDeleted == false);
-            if (level is null) { return new LevelResponseModel { Message = "Level not found", Success = false }; }
+            if (level is null) { return new BaseResponse { Message = "Level not found", Success = false }; }
 
             level.IsDeleted = true;
             await _levelRepository.UpdateAsync(level);
             return new BaseResponse { Message = "Level Deleted Successfully", Success = true };
         }
-        public async Task<LevelsResponseModel> GetLevelsByStaffId(Guid staffId)
+        public async Task<Results<LevelDto>> GetLevelsByStaffId(Guid staffId)
         {
             var staff = await _staffRepository.GetAsync(staffId);
-            if (staff is null) { return new LevelsResponseModel { Message = "Staff not found", Success = false, }; }
+            if (staff is null) { return new Results<LevelDto> { Message = "Staff not found", Success = false, }; }
             
             var staffLevels = await _staffLevelRepository.GetLevelsByStaffIdAsync(staffId);
             var data = _mapper.Map<List<LevelDto>>(staffLevels);
-            return new LevelsResponseModel { Message = "Level Successfully Retrived", Success = true, Data = data };
+            return new Results<LevelDto> { Message = "Level Successfully Retrived", Success = true, Data = data };
 
         }
     }

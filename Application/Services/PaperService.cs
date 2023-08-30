@@ -4,10 +4,13 @@ using Application.Abstractions.Services;
 using Application.Dtos;
 using Application.Dtos.RequestModel;
 using Application.Dtos.ResponseModel;
+using Application.Filter;
+using Application.Helpers;
 using AutoMapper;
 using Domain.Entity;
 using Domain.Enum;
 using Hangfire;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Services
@@ -15,6 +18,7 @@ namespace Application.Services
     public class PaperService : IPaperService
     {
         private readonly IMapper _mapper;
+        private readonly IUriService _uriService;
         private readonly IMailService _mailService;
         private readonly IExamRepository _examRepository;
         private readonly ILevelRepository _levelRepository;
@@ -27,9 +31,10 @@ namespace Application.Services
         private readonly IExamSubjectsRepository _examSubjectsRepository;
         private readonly ISubjectTimeTableRepository _subjectTimeTableRepository;
 
-        public PaperService(IPaperRepository paperRepository, IExamRepository examRepository, ISubjectRepository subjectRepository, ILevelRepository levelRepository, IExamSubjectsRepository examSubjectsRepository, IStaffLevelRepository staffLevelRepository, IStaffSubjectRepository staffSubjectRepository, IStudentRepository studentRepository, IMailService mailService, IMapper mapper, ITimeTableRepository timeTableRepository, ISubjectTimeTableRepository subjectTimeTableRepository)
+        public PaperService(IPaperRepository paperRepository, IExamRepository examRepository, ISubjectRepository subjectRepository, ILevelRepository levelRepository, IExamSubjectsRepository examSubjectsRepository, IStaffLevelRepository staffLevelRepository, IStaffSubjectRepository staffSubjectRepository, IStudentRepository studentRepository, IMailService mailService, IMapper mapper, ITimeTableRepository timeTableRepository, ISubjectTimeTableRepository subjectTimeTableRepository, IUriService uriService)
         {
             _mapper = mapper;
+            _uriService = uriService;
             _mailService = mailService;
             _examRepository = examRepository;
             _levelRepository = levelRepository;
@@ -85,13 +90,13 @@ namespace Application.Services
             return new BaseResponse { Message = "Paper Successfully created and added to time table", Success = true };
         }
 
-        public async Task<PaperResponseModel> GetPaperByIdAsync(Guid id)
+        public async Task<Response<PaperDto>> GetPaperByIdAsync(Guid id)
         {
             var paper = await _paperRepository.GetByIdAsync(id);
-            if (paper is null) { return new PaperResponseModel { Message = "Paper not found", Success = false }; }
+            if (paper is null) { return new Response<PaperDto> { Message = "Paper not found", Success = false }; }
 
             var data = _mapper.Map<PaperDto>(paper);
-            return new PaperResponseModel { Message = $"{paper.Subject.Name} paper found successfully", Success = true, Data = data };
+            return new Response<PaperDto> { Message = $"{paper.Subject.Name} paper found successfully", Success = true, Data = data };
         }
 
         public async Task<BaseResponse> UpdatePaperAync(Guid Id, UpdatePaperRequestModel model)
@@ -112,13 +117,16 @@ namespace Application.Services
             return new BaseResponse { Message = "Paper Successfully Updated", Success = true };
         }
 
-        public async Task<PapersResponseModel> GetAllPapersByLevelIdAsync(Guid levelId, Guid examId)
+        public async Task<Responses<PaperDto>> GetAllPapersByLevelIdAsync(PaginationFilter filter, string route, Guid levelId, Guid examId)
         {
-            var papers = await _paperRepository.GetAllPapersByLevelIdAsync(levelId, examId);
-            if (papers.IsNullOrEmpty()) { return new PapersResponseModel { Message = "No paper found", Success = false }; }
+            var papers = await _paperRepository.GetAllPapersByLevelIdAsync(levelId, examId, filter.PageNumber, filter.PageSize);
+            if (papers.IsNullOrEmpty()) { return new Responses<PaperDto> { Message = "No paper found", Success = false }; }
 
             var papersDtoData = _mapper.Map<List<PaperDto>>(papers);
-            return new PapersResponseModel { Message = "paper successfully found", Success = true, Data = papersDtoData };
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            var totalRecords = await _levelRepository.CountAsync();
+            var pagedReponse = PaginationHelper.CreatePagedReponse<PaperDto>(papersDtoData, validFilter, totalRecords, _uriService, route);
+            return new Responses<PaperDto> { Message = "paper successfully found", Success = true, Data = pagedReponse };
         }
 
         // Can the admin start the paper before the paper start date ???

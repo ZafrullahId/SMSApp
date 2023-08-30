@@ -17,12 +17,14 @@ namespace Persistence.Repositories
         {
             _Context = context;
         }
-        public async Task<IEnumerable<SubjectTimeTable>> GetSubjectTimeTableAsync(Guid timeTableId)
+        public async Task<IEnumerable<SubjectTimeTable>> GetSubjectTimeTableAsync(Guid timeTableId, int skipLength, int takeLength)
         {
             return await _Context.SubjectTimeTables
                 .Where(x => x.TimeTableId == timeTableId)
                 .Include(x => x.Subject)
                 .OrderBy(x => x.StartTime)
+                .Skip((skipLength - 1) * takeLength)
+                .Take(takeLength)
                 .ToListAsync();
         }
         public async Task<IEnumerable<SubjectTimeTable>> GetSubjectTimeTableAsync(string seasion, Term term)

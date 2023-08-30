@@ -16,12 +16,14 @@ namespace Persistence.Repositories
         {
             _Context = context;
         }
-        public async Task<List<StudentsPapers>> GetStudentPaperAsync(Guid paperId)
+        public async Task<List<StudentsPapers>> GetStudentPaperAsync(Guid paperId, int skipLength, int takeLength)
         {
             return await _Context.StudentsPapers
             .Include(x => x.Student)
             .ThenInclude(x => x.User)
             .Where(x => x.Paper.Id == paperId)
+            .Skip((skipLength - 1) * takeLength)
+            .Take(takeLength)
             .ToListAsync(); 
         }
         public async Task<StudentsPapers> GetStudentPaperByStudentId(Guid studentId, Guid paperId)

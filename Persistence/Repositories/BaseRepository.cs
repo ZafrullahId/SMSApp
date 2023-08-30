@@ -4,7 +4,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Application.Abstractions.Repositories;
+using Application.Dtos.ResponseModel;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using Persistence.Context;
 
 namespace Persistence.Repositories
@@ -12,7 +14,7 @@ namespace Persistence.Repositories
     public class BaseRepository<T> : IBaseRepository<T> where T : class, new()
     {
         protected SMSAppContext _Context;
-         public async Task<T> CreateAsync(T entity)
+        public async Task<T> CreateAsync(T entity)
         {
             await _Context.Set<T>().AddAsync(entity);
             return entity;
@@ -25,7 +27,29 @@ namespace Persistence.Repositories
         {
             return await _Context.Set<T>().ToListAsync();
         }
-
+        public async Task<List<T>> GetFilterAsync(int skipLength, int takeLength)
+        {
+            return await _Context.Set<T>()
+               .Skip((skipLength - 1) * takeLength)
+                .Take(takeLength)
+               .ToListAsync();
+        }
+        public async Task<List<T>> GetFilterAsync(int skipLength, int takeLength, Expression<Func<T, bool>> expression)
+        {
+            return await _Context.Set<T>()
+               .Skip((skipLength - 1) * takeLength)
+               .Take(takeLength)
+               .Where(expression)
+               .ToListAsync();
+        }
+        public async Task<int> CountAsync()
+        {
+            return await _Context.Set<T>().CountAsync();
+        }
+        public async Task<int> CountAsync(Expression<Func<T, bool>> expression)
+        {
+            return await _Context.Set<T>().CountAsync(expression);
+        }
         public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>> expression)
         {
             return await _Context.Set<T>().Where(expression).ToListAsync();
@@ -39,7 +63,7 @@ namespace Persistence.Repositories
         public async Task<bool> DeleteAsync(T entity)
         {
             _Context.Set<T>().Remove(entity);
-          await  _Context.SaveChangesAsync();
+            await _Context.SaveChangesAsync();
             return true;
         }
         public async Task<T> GetAsync(Guid id)

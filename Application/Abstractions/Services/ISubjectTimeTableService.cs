@@ -1,5 +1,7 @@
-﻿using Application.Dtos.RequestModel;
+﻿using Application.Dtos;
+using Application.Dtos.RequestModel;
 using Application.Dtos.ResponseModel;
+using Application.Filter;
 using Domain.Enum;
 using System;
 using System.Collections.Generic;
@@ -11,8 +13,8 @@ namespace Application.Abstractions.Services
 {
     public interface ISubjectTimeTableService
     {
-        Task<SubjectsTimeTableResponseModel> GetTimeTableSubjectsAsync(Guid timeTableId);
         Task<SubjectsTimeTableResponseModel> GeTimeTableByYearAndTerm(string seasion, Term term);
+        Task<Responses<SubjectTimeTableDto>> GetTimeTableSubjectsAsync(PaginationFilter filter, string route, Guid timeTableId);
         //Task<BaseResponse> CreateTimeTableSubjectAsync(CreateSubjectTimeTableRequestModel model, Guid timeTableId);
     }
 }

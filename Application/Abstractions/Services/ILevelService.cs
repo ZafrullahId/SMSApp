@@ -1,6 +1,8 @@
 ﻿
+using Application.Dtos;
 using Application.Dtos.RequestModel;
 using Application.Dtos.ResponseModel;
+using Application.Filter;
 using System;
 using System.Threading.Tasks;
 
@@ -8,10 +10,10 @@ namespace Application.Abstractions.Services
 {
     public interface ILevelService
     {
-        Task<BaseResponse> CreateLevel(CreateLevelRequestModel model);
         Task<BaseResponse> DeleteLevelAsync(Guid id);
-        Task<LevelResponseModel> GetLevelAsync(Guid id);
-        Task<LevelsResponseModel> GetLevelsAsync();
-        Task<LevelsResponseModel> GetLevelsByStaffId(Guid staffId);
+        Task<Response<LevelDto>> GetLevelAsync(Guid id);
+        Task<Results<LevelDto>> GetLevelsByStaffId(Guid staffId);
+        Task<BaseResponse> CreateLevel(CreateLevelRequestModel model);
+        Task<Responses<LevelDto>> GetLevelsAsync(PaginationFilter filter, string route);
     }
 }

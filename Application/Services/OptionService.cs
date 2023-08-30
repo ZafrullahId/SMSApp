@@ -40,13 +40,13 @@ namespace Application.Services
             return new BaseResponse { Message = "Options Successfully Created", Success = true };
         }
 
-        public async Task<OptionsResponseModel> GetOptionByQuestionIdAsync(Guid id)
+        public async Task<Results<OptionDto>> GetOptionByQuestionIdAsync(Guid id)
         {
             var options = await _optionRepository.GetAllAsync(x => x.QuestionId == id && x.IsDeleted == false);
-            if (options is null) { return new OptionsResponseModel { Message = "Option not found", Success = false }; }
+            if (options is null) { return new Results<OptionDto> { Message = "Option not found", Success = false }; }
 
             var data = _mapper.Map<List<OptionDto>>(options);
-            return new OptionsResponseModel { Message = "Options found", Success = true, Data = data };
+            return new Results<OptionDto> { Message = "Options found", Success = true, Data = data };
         }
 
         public async Task<BaseResponse> SubmitPaperAsync(List<string> selectedOptions, Guid studentUserId)
@@ -63,7 +63,6 @@ namespace Application.Services
                 if (!option.IsCorrect) { continue; }
 
                 var question = await _questionRepository.GetQuestionAsync(option.QuestionId);
-                //if (question is null) { return new BaseResponse { Message = "Question not found", Success = false }; }
 
                 if (question.Paper.LevelId != student.LevelId) { return new BaseResponse { Message = "You are not authorized to take this exam", Success = false }; }
 

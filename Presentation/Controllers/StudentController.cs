@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Services;
 using Application.Dtos.RequestModel;
+using Application.Filter;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Persistence.Auth;
@@ -33,9 +34,10 @@ namespace Host.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAllAsync()
+        public async Task<IActionResult> GetAllAsync([FromQuery]PaginationFilter filter)
         {
-            var students = await _studentService.GetAllStudentsAsync();
+            var route = Request.Path.Value;
+            var students = await _studentService.GetAllStudentsAsync(filter,route);
             return students.Success ? Ok(students) : BadRequest(students);
         }
 

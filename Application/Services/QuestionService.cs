@@ -51,25 +51,25 @@ namespace Application.Services
             return new BaseResponse { Message = $"Question Successfull Created", Success = true };
         }
 
-        public async Task<QuestionOptionsResponseModel> GetQuestionByIdAsync(Guid id)
+        public async Task<Response<QuestionOptionsDto>> GetQuestionByIdAsync(Guid id)
         {
             var question = await _questionRepository.GetAsync(x => x.Id == id && x.IsDeleted == false);
-            if (question == null) { return new QuestionOptionsResponseModel { Message = "Question not found", Success = false }; }
+            if (question == null) { return new Response<QuestionOptionsDto> { Message = "Question not found", Success = false }; }
 
             var options = await _optionRepository.GetAllAsync(x => x.QuestionId == question.Id && x.IsDeleted == false);
-            if (options.IsNullOrEmpty()) { return new QuestionOptionsResponseModel { Message = "No Option found for this Question", Success = false }; }
+            if (options.IsNullOrEmpty()) { return new Response<QuestionOptionsDto> { Message = "No Option found for this Question", Success = false }; }
             
             var questionOptionDtoData = _mapper.Map<QuestionOptionsDto>(question);
-            return new QuestionOptionsResponseModel { Message = "Question successfully found", Success = true, Data = questionOptionDtoData };
+            return new Response<QuestionOptionsDto> { Message = "Question successfully found", Success = true, Data = questionOptionDtoData };
         }
 
-        public async Task<QuestionsOptionsResponseModel> GetAllQuestionsByPaperIdAsync(Guid paperId)
+        public async Task<Results<QuestionOptionsDto>> GetAllQuestionsByPaperIdAsync(Guid paperId)
         {
             var paper = await _paperRepository.GetAsync(x => x.Id == paperId && x.IsDeleted == false);
-            if (paper == null) { return new QuestionsOptionsResponseModel { Message = "Paper not found", Success = false }; }
+            if (paper == null) { return new Results<QuestionOptionsDto> { Message = "Paper not found", Success = false }; }
 
             var questions = await _questionRepository.GetQuestionByPaperIdAsync(paper.Id);
-            if (questions.IsNullOrEmpty()) { return new QuestionsOptionsResponseModel { Message = $"No Question found", Success = false }; }
+            if (questions.IsNullOrEmpty()) { return new Results<QuestionOptionsDto> { Message = $"No Question found", Success = false }; }
 
             List<Question> questionsOptions = new();
             foreach (var question in questions)
@@ -80,7 +80,7 @@ namespace Application.Services
                 questionsOptions.Add(quest);
             }
             var questionOptionsDtoData = _mapper.Map<List<QuestionOptionsDto>>(questionsOptions);
-            return new QuestionsOptionsResponseModel { Message = "Questions found", Success = true, Data = questionOptionsDtoData };
+            return new Results<QuestionOptionsDto> { Message = "Questions found", Success = true, Data = questionOptionsDtoData };
         }
 
         public async Task<BaseResponse> UpdateAsync(Guid questionId, UpdateQuestionRequestModel model)

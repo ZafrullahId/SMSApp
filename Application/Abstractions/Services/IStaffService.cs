@@ -1,4 +1,5 @@
-﻿using Application.Dtos.RequestModel;
+﻿using Application.Dtos;
+using Application.Dtos.RequestModel;
 using Application.Dtos.ResponseModel;
 
 namespace Application.Abstractions.Services
@@ -7,7 +8,7 @@ namespace Application.Abstractions.Services
     {
         Task<BaseResponse> Create(CreateStaffRequestModel model);
         Task<BaseResponse> DeleteAsync(Guid id);
-        Task<StaffLevelSubjectResponseModel> GetStaffByIdAsync(Guid id);
+        Task<Response<StaffLevelSubjectDto>> GetAsync(Guid id);
         Task<BaseResponse> UpdateAsync(Guid id, UpdateStaffRequestModel model);
     }
 }

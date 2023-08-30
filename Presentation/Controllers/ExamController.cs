@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Services;
 using Application.Dtos.RequestModel;
+using Application.Filter;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -20,22 +21,24 @@ namespace Host.Controllers
         {
             _examService = examService;
         }
-        [HttpPost("CreateExam"), Authorize(Roles = "Teacher")]
+        [HttpPost("CreateExam")]
         public async Task<IActionResult> CreateAsync([FromForm]CreateExamRequestModel model)
         {
             var exam = await _examService.CreateExamAsync(model);
             return exam.Success ? Ok(exam) : BadRequest(exam);
         }
-        [HttpGet("GetAllExams"), Authorize]
-        public async Task<IActionResult> GetAllExamAsync()
+        [HttpGet("GetAllExams")]
+        public async Task<IActionResult> GetAllExamAsync([FromQuery]PaginationFilter filter)
         {
-            var exams = await _examService.GetAllExamsAsync();
+            var route = Request.Path.Value;
+            var exams = await _examService.GetAllExamsAsync(filter, route);
             return exams.Success ? Ok(exams) : BadRequest(exams);
         }
         [HttpGet("GetAllOngoingExams"), Authorize]
-        public async Task<IActionResult> GetOngoingExamsAsync()
+        public async Task<IActionResult> GetOngoingExamsAsync([FromQuery] PaginationFilter filter)
         {
-            var exams = await _examService.GetAllOngoingExamsAsync();
+            var route = Request.Path.Value;
+            var exams = await _examService.GetAllOngoingExamsAsync(filter, route);
             return exams.Success ? Ok(exams) : BadRequest(exams);
         }
         [HttpPut("UpdateExamStatus/{id}"), Authorize]

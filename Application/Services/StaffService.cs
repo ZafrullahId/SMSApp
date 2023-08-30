@@ -88,21 +88,21 @@ namespace Application.Services
             return new BaseResponse { Message = "Staff Successfully Added", Success = true, };
         }
 
-        public async Task<StaffLevelSubjectResponseModel> GetStaffByIdAsync(Guid id)
+        public async Task<Response<StaffLevelSubjectDto>> GetAsync(Guid id)
         {
             var staff = await _staffRepository.GetStaffByUserIdAsync(id);
-            if (staff is null) { return new StaffLevelSubjectResponseModel { Message = "Stff not found", Success = false, }; }
+            if (staff is null) { return new Response<StaffLevelSubjectDto> { Message = "Stff not found", Success = false, }; }
             
             var levels = await _staffLevelRepository.GetLevelsByStaffIdAsync(staff.Id);
-            if (levels.IsNullOrEmpty()) { return new StaffLevelSubjectResponseModel { Message = "No Levels found for this satff", Success = false, }; }
+            if (levels.IsNullOrEmpty()) { return new Response<StaffLevelSubjectDto> { Message = "No Levels found for this satff", Success = false, }; }
             
             staff.StaffsLevels = levels;
             var subjects = await _staffSubjectRepository.GetStaffSubjectsAsync(staff.Id);
-            if (subjects.IsNullOrEmpty()) { return new StaffLevelSubjectResponseModel { Message = "No Subject found for this staff", Success = false, }; }
+            if (subjects.IsNullOrEmpty()) { return new Response<StaffLevelSubjectDto> { Message = "No Subject found for this staff", Success = false, }; }
             
             staff.StaffsSubjects = subjects;
             var staffLevelSubjectDtoData = _mapper.Map<StaffLevelSubjectDto>(staff);
-            return new StaffLevelSubjectResponseModel { Message = "Staff Info successfully retrieved", Success = true, Data = staffLevelSubjectDtoData };
+            return new Response<StaffLevelSubjectDto> { Message = "Staff Info successfully retrieved", Success = true, Data = staffLevelSubjectDtoData };
         }
 
         public async Task<BaseResponse> UpdateAsync(Guid id, UpdateStaffRequestModel model)
