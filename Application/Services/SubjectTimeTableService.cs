@@ -20,16 +20,20 @@ namespace Application.Services
     {
         private readonly IMapper _mapper;
         private readonly IUriService _uriService;
+        private readonly ILevelRepository _levelRepository;
         private readonly ISubjectRepository _subjectRepository;
         private readonly ITimeTableRepository _timeTableRepository;
+        private readonly ILevelTimeTableRepository _levelTimeTableRepository;
         private readonly ISubjectTimeTableRepository _subjectTimeTableRepository;
 
-        public SubjectTimeTableService(ISubjectTimeTableRepository subjectTimeTableRepository, ITimeTableRepository timeTableRepository, IMapper mapper, ISubjectRepository subjectRepository, IUriService uriService)
+        public SubjectTimeTableService(ISubjectTimeTableRepository subjectTimeTableRepository, ITimeTableRepository timeTableRepository, IMapper mapper, ISubjectRepository subjectRepository, IUriService uriService, ILevelRepository levelRepository, ILevelTimeTableRepository levelTimeTableRepository)
         {
             _mapper = mapper;
             _uriService = uriService;
+            _levelRepository = levelRepository;
             _subjectRepository = subjectRepository;
             _timeTableRepository = timeTableRepository;
+            _levelTimeTableRepository = levelTimeTableRepository;
             _subjectTimeTableRepository = subjectTimeTableRepository;
         }
         //public async Task<BaseResponse> CreateTimeTableSubjectAsync(CreateSubjectTimeTableRequestModel model, Guid timeTableId)
@@ -64,13 +68,24 @@ namespace Application.Services
             return new Responses<SubjectTimeTableDto> { Message = "Time Table Subjects Successfully retrieved", Success = true, Data = pagedReponse };
         }
 
-        public async Task<SubjectsTimeTableResponseModel> GeTimeTableByYearAndTerm(string seasion, Term term)
-        { 
-            var timeTable = await _subjectTimeTableRepository.GetSubjectTimeTableAsync(seasion, term);
-            if (!timeTable.Any()) { return new SubjectsTimeTableResponseModel { Message = $"No time table found for {seasion} {term}", Success = false }; }
+        public async Task<Results<IEnumerable<SubjectTimeTableDto>>> GetTimeTableByYearAndTerm(string seasion, Term term)
+        {
+            List<IEnumerable<SubjectTimeTableDto>> subjectTimeTableDtos = new();
+            var levels = await _levelRepository.GetAllAsync();
+            foreach (var level in levels)
+            {
+                var timeTable = await _levelTimeTableRepository.GetAsync(x => x.LevelId == level.Id && x.TimeTable.Seasion == seasion && x.TimeTable.Term == term);
+                if (timeTable is not null)
+                {
+                    var subjectTimeTable = await _subjectTimeTableRepository.GetSubjectTimeTableAsync(timeTable.TimeTableId);
+                    var subjectTimeTableDtoData = _mapper.Map<IEnumerable<SubjectTimeTableDto>>(subjectTimeTable);
+                    subjectTimeTableDtos.Add(subjectTimeTableDtoData);
 
-            var subjectTimeTableDtoData = _mapper.Map<IEnumerable<SubjectTimeTableDto>>(timeTable);
-            return new SubjectsTimeTableResponseModel { Message = $"All Time Tables Subjects Successfully retrieved for {term} {seasion}", Success = true, Data = subjectTimeTableDtoData };
+                }
+
+            }
+
+            return new Results<IEnumerable<SubjectTimeTableDto>> { Message = $"All Time Tables Subjects Successfully retrieved for {term} {seasion}", Success = true, Data = subjectTimeTableDtos };
         }
 
 

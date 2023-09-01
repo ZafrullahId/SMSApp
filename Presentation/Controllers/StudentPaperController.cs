@@ -4,6 +4,7 @@ using Application.Filter;
 using Domain.Entity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NSwag.Annotations;
 using Persistence.Auth;
 
 namespace Host.Controllers
@@ -19,7 +20,8 @@ namespace Host.Controllers
             _studentPaperService = studentPaperService;
         }
 
-        [HttpPost("CreateStudentPapers/{paperId}")]
+        [HttpPost("{paperId}")]
+        [OpenApiOperation("Create Student Paper by paperId", "")]
         public async Task<IActionResult> CreateAsync(Guid paperId)
         {
             var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
@@ -27,20 +29,23 @@ namespace Host.Controllers
             var studentPaper = await _studentPaperService.CreateStudentPaperAsync(userId, paperId);
             return studentPaper.Success ? Ok(studentPaper) : BadRequest(studentPaper);
         }
-        [HttpGet("GetStudentPaper/{studentId}/{paperId}")]
+        [HttpGet("{studentId}/{paperId}")]
+        [OpenApiOperation("Get Student Paper by StudentId and PaperId", "")]
         public async Task<IActionResult> GetStudentPaper(Guid studentId, Guid paperId)
         {
             var studentPaper = await _studentPaperService.GetStudentPaper(studentId, paperId);
             return studentPaper.Success ? Ok(studentPaper) : BadRequest(studentPaper);
         }
-        [HttpGet("GetAllStudentPaper/{paperId}")]
+        [HttpGet("{paperId}/studentpapers")]
+        [OpenApiOperation("Get All Student Paper by PaperId ", "")]
         public async Task<IActionResult> GetAllStudentPaper([FromQuery]PaginationFilter filter, Guid paperId)
         {
             var route = Request.Path.Value;
             var studentsPapers = await _studentPaperService.GetStudentsPapersAsync(filter, route, paperId);
             return studentsPapers.Success ? Ok(studentsPapers) : BadRequest(studentsPapers);
         }
-        [HttpGet("ReleaseResult/paperId"), Authorize(Roles = "Admin")]
+        [HttpGet("{paperId}/release"), Authorize(Roles = "Admin")]
+        [OpenApiOperation("Release student result by paperId", "")]
         public async Task<IActionResult> ReleasePaperResults(Guid paperId)
         {
             var result = await _studentPaperService.ReleasePaperResults(paperId);

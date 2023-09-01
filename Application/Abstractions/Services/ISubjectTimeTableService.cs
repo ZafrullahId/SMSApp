@@ -13,7 +13,8 @@ namespace Application.Abstractions.Services
 {
     public interface ISubjectTimeTableService
     {
-        Task<SubjectsTimeTableResponseModel> GeTimeTableByYearAndTerm(string seasion, Term term);
+        //Task<SubjectsTimeTableResponseModel> GeTimeTableByYearAndTerm(string seasion, Term term);
+        Task<Results<IEnumerable<SubjectTimeTableDto>>> GetTimeTableByYearAndTerm(string seasion, Term term);
         Task<Responses<SubjectTimeTableDto>> GetTimeTableSubjectsAsync(PaginationFilter filter, string route, Guid timeTableId);
         //Task<BaseResponse> CreateTimeTableSubjectAsync(CreateSubjectTimeTableRequestModel model, Guid timeTableId);
     }

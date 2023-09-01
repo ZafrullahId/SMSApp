@@ -7,6 +7,7 @@ using Domain.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NSwag.Annotations;
 
 namespace Host.Controllers
 {
@@ -26,7 +27,8 @@ namespace Host.Controllers
         }
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("CreateTimeTable/{levelId}")]
+        [HttpPost("{levelId}")]
+        [OpenApiOperation("Create TimeTable By LevelId.", "")]
         public async Task<IActionResult> CreateTimeTableAsync([FromForm]CreateTimeTableRequestModel model, Guid levelId)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -35,7 +37,8 @@ namespace Host.Controllers
             return BadRequest(timeTable);
         
         }
-        [HttpGet("GetTimeTableSubjects/{timeTableId}"), Authorize]
+        [HttpGet("{timeTableId}/timetablesubjects"), Authorize]
+        [OpenApiOperation("Get TimeTable subjects by TimeTableId.", "")]
         public async Task<IActionResult> GetTimeTableSubjectsAsync([FromQuery] PaginationFilter filter, Guid timeTableId)
         {
             var route = Request.Path.Value;
@@ -43,15 +46,17 @@ namespace Host.Controllers
             if (timeTable.Success) return Ok(timeTable);
             return BadRequest(timeTable);
         }
-        [HttpGet("GeTimeTableByYearAndTerm/{seasion}/{term}")]
+        [HttpGet("{seasion}/{term}")]
+        [OpenApiOperation("GeTimeTableByYearAndTerm By Season And Term.", "")]
         public async Task<IActionResult> GeTimeTableByYearAndTermAsync(string seasion, Term term)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var timeTable = await _subjectTimeTableService.GeTimeTableByYearAndTerm(seasion, term);
+            var timeTable = await _subjectTimeTableService.GetTimeTableByYearAndTerm(seasion, term);
             if (timeTable.Success) return Ok(timeTable);
             return BadRequest(timeTable);
         }
-        [HttpGet("GetLevelTimeTable/{levelId}/{term}/{seasion}")]
+        [HttpGet("{levelId}/{term}/{seasion}")]
+        [OpenApiOperation("Get a level TimeTable By LevelId,Term and Season ")]
         public async Task<IActionResult> GetLevelTimeTableAsync([FromQuery]PaginationFilter filter, Guid levelId, Term term, string seasion)
         {
             var route = Request.Path.Value;

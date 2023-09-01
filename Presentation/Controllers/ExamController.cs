@@ -37,7 +37,7 @@ namespace Host.Controllers
             var exams = await _examService.GetAllExamsAsync(filter, route);
             return exams.Success ? Ok(exams) : BadRequest(exams);
         }
-        [HttpGet("/state"), Authorize]
+        [HttpGet("state"), Authorize]
         [OpenApiOperation("Get all ongoing exam")]
         public async Task<IActionResult> GetOngoingExamsAsync([FromQuery] PaginationFilter filter)
         {
@@ -45,8 +45,8 @@ namespace Host.Controllers
             var exams = await _examService.GetAllOngoingExamsAsync(filter, route);
             return exams.Success ? Ok(exams) : BadRequest(exams);
         }
-        [HttpPut("/{id}"), Authorize]
-        [OpenApiOperation("update a your exam status by Id.", "")]
+        [HttpPut("{id}/status"), Authorize]
+        [OpenApiOperation("update exam status by Id.", "")]
         public async Task<IActionResult> ChangeExamStatusAsync(Guid id)
         {
             var exam = await _examService.ChangeExamStateAsync(id);

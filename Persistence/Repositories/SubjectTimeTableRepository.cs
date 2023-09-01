@@ -27,6 +27,14 @@ namespace Persistence.Repositories
                 .Take(takeLength)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<SubjectTimeTable>> GetSubjectTimeTableAsync(Guid timeTableId)
+        {
+            return await _Context.SubjectTimeTables
+                .Where(x => x.TimeTableId == timeTableId)
+                .Include(x => x.Subject)
+                .OrderBy(x => x.StartTime)
+                .ToListAsync();
+        }
         public async Task<IEnumerable<SubjectTimeTable>> GetSubjectTimeTableAsync(string seasion, Term term)
         {
             return await _Context.SubjectTimeTables

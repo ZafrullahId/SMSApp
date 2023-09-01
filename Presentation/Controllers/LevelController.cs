@@ -3,6 +3,7 @@ using Application.Dtos.RequestModel;
 using Application.Filter;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NSwag.Annotations;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,32 +19,37 @@ namespace Host.Controllers
         {
             _levelService = levelService;
         }
-        [HttpPost("CreateLevel"), Authorize]
+        [HttpPost, Authorize]
+        [OpenApiOperation("Create your level ")]
         public async Task<IActionResult> CreateAsync([FromForm]CreateLevelRequestModel model)
         {
             var level = await _levelService.CreateLevel(model);
             return level.Success ? Ok(level) : BadRequest(level);
         }
-        [HttpGet("GetAllLevels"), Authorize]
+        [HttpGet, Authorize]
+        [OpenApiOperation("Get All Levels")]
         public async Task<IActionResult> GetAllLevelsAsync([FromQuery] PaginationFilter filter)
         {
             var route = Request.Path.Value;
             var levels = await _levelService.GetLevelsAsync(filter, route);
             return levels.Success ? Ok(levels) : BadRequest(levels);
         }
-        [HttpGet("GetLevel/{id}"), Authorize]
+        [HttpGet("{id}"), Authorize]
+        [OpenApiOperation("Get all level by Id ")]
         public async Task<IActionResult> GetLevelAsync(Guid id)
         {
             var level = await _levelService.GetLevelAsync(id);
             return level.Success ? Ok(level) : BadRequest(level);
         }
-        [HttpDelete("Delete/{id}"), Authorize]
+        [HttpDelete("{id}"), Authorize]
+        [OpenApiOperation("Delete level by Id ")]
         public async Task<IActionResult> DeleteLevelAsync(Guid id)
         {
             var isDeleted = await _levelService.DeleteLevelAsync(id);
             return !isDeleted.Success ? BadRequest(isDeleted) : Ok(isDeleted);
         }
-        [HttpGet("GetLevelsByStaffId/{id}"), Authorize]
+        [HttpGet("{id}/stafflevels"), Authorize]
+        [OpenApiOperation("Get levels of a staff by Id ")]
         public async Task<IActionResult> GetLevelsByStaffIdAsync(Guid id)
         {
             var levels = await _levelService.GetLevelsByStaffId(id);

@@ -4,6 +4,7 @@ using Application.Filter;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NSwag.Annotations;
 using Persistence.Auth;
 
 namespace Host.Controllers
@@ -20,21 +21,24 @@ namespace Host.Controllers
             _optionService = optionService;
         }
 
-        [HttpPost("CreatePaper/{examId}/{staffId}/{timeTableId}"), Authorize(Roles = "Teacher")]
+        [HttpPost("{examId}/{staffId}/{timeTableId}"), Authorize(Roles = "Teacher")]
+        [OpenApiOperation("Create paper by examId ,staffid and timetableId ", "")]
         public async Task<IActionResult> CreateAsync([FromForm]CreatePaperRequestModel model, Guid examId, Guid staffId, Guid timeTableId)
         {
             var paper = await _paperService.Create(model, examId, staffId, timeTableId);
             return paper.Success ? Ok(paper) : BadRequest(paper);
         }
 
-        [HttpGet("GetPaper/{id}"), Authorize]
+        [HttpGet("{id}"), Authorize]
+        [OpenApiOperation("Gets paper by Id", "")]
         public async Task<IActionResult> GetPaperByIdAsync(Guid id)
         {
             var paper = await _paperService.GetPaperByIdAsync(id);
             return paper.Success ? Ok(paper) : BadRequest(paper);
         }
 
-        [HttpGet("GetAllPaper/{examId}/{levelId}")]
+        [HttpGet("{examId}/{levelId}/papers")]
+        [OpenApiOperation("Gets all papers by examId and levelId ", "")]
         public async Task<IActionResult> GetAllPaperAsync([FromQuery]PaginationFilter filter,Guid examId, Guid levelId)
         {
             var route = Request.Path.Value;
@@ -42,28 +46,32 @@ namespace Host.Controllers
             return papers.Success ? Ok(papers) : BadRequest(papers);
         }
 
-        [HttpPut("UpdatedPaper/{paperId}"), Authorize(Roles = "Teacher")]
+        [HttpPut("{paperId}"), Authorize(Roles = "Teacher")]
+        [OpenApiOperation("Update Paper by id"," ")]
         public async Task<IActionResult> UpadetAsync(Guid paperId, [FromForm]UpdatePaperRequestModel model)
         {
             var paper = await _paperService.UpdatePaperAync(paperId, model);
             return paper.Success ? Ok(paper) : BadRequest(paper);
         }
 
-        [HttpPut("StartPaper/{paperId}"), Authorize(Roles = "Teacher,Admin")]
+        [HttpPut("{paperId}/startstatus"), Authorize(Roles = "Teacher,Admin")]
+        [OpenApiOperation("Start a paper","")]
         public async Task<IActionResult> StartPaper(Guid paperId)
         {
             var paper = await _paperService.StartPaperAsync(paperId);
             return paper.Success ? Ok(paper) : BadRequest(paper);
         }
 
-        [HttpPut("EndPaper/{paperId}"), Authorize(Roles = "Teacher,Admin")]
+        [HttpPut("{paperId}/endstatus"), Authorize(Roles = "Teacher,Admin")]
+        [OpenApiOperation("End a Paper  ", "")]
         public async Task<IActionResult> EndPaper(Guid paperId)
         {
             var paper = await _paperService.EndPaperAsync(paperId);
             return paper.Success ? Ok(paper) : BadRequest(paper);
         }
 
-        [HttpPut("TerminatePaper/{paperId}"), Authorize(Roles = "Teacher,Admin")]
+        [HttpPut("{paperId}/terminate"), Authorize(Roles = "Teacher,Admin")]
+        [OpenApiOperation("Terminate paper ")]
         public async Task<IActionResult> TerminatePaper(Guid paperId)
         {
             var paper = await _paperService.TerminatePaperAsync(paperId);
@@ -71,6 +79,7 @@ namespace Host.Controllers
         }
 
         [HttpPut("SubmitPaper"), Authorize]
+        [OpenApiOperation("Submit paper")]
         public async Task<IActionResult> SubmitAsync([FromBody] List<string> selectedOptions)
         {
             var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();

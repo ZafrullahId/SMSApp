@@ -3,6 +3,7 @@ using Application.Dtos.RequestModel;
 using Application.Filter;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NSwag.Annotations;
 using Persistence.Auth;
 
 namespace Host.Controllers
@@ -17,7 +18,8 @@ namespace Host.Controllers
             _studentService = studentService;
         }
 
-        [HttpPost("Add"), Authorize(Roles = "Teacher")]
+        [HttpPost, Authorize(Roles = "Teacher")]
+        [OpenApiOperation("Create Student", " ")]
         public async Task<IActionResult> CreateAsync([FromForm]CreateStudentRequestModel model)
         {
             var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
@@ -26,14 +28,16 @@ namespace Host.Controllers
             return student.Success ? Ok(student) : BadRequest(student);
         }
 
-        [HttpGet("GetStudentById/{userId}")]
+        [HttpGet("{userId}")]
+        [OpenApiOperation("GetStudent by user id","")]
         public async Task<IActionResult> GetStudentAsync(Guid userId)
         {
             var student = await _studentService.GetStudentByUserIdAsync(userId);
             return student.Success == true ? Ok(student) : BadRequest(student);
         }
 
-        [HttpGet("GetAll")]
+        [HttpGet("students")]
+        [OpenApiOperation("Get all student", " ")]
         public async Task<IActionResult> GetAllAsync([FromQuery]PaginationFilter filter)
         {
             var route = Request.Path.Value;
@@ -41,7 +45,8 @@ namespace Host.Controllers
             return students.Success ? Ok(students) : BadRequest(students);
         }
 
-        [HttpPut("UpdateStudent"), Authorize]
+        [HttpPut, Authorize]
+        [OpenApiOperation("Update Student", "")]
         public async Task<IActionResult> UpdateAsync([FromForm]UpdateStudentRequestModel model)
         {
             var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
@@ -50,7 +55,8 @@ namespace Host.Controllers
             return student.Success ? Ok(student) : BadRequest(student);
         }
 
-        [HttpPost("UploadStudentList"), Authorize(Roles = "Admin")]
+        [HttpPost("studentfilelist"), Authorize(Roles = "Admin")]
+        [OpenApiOperation("upload students list", "")]
         public async Task<IActionResult> CreateAsync([FromForm] UploadStudentListFileRequestModel model)
         {
             if (ModelState.IsValid)
