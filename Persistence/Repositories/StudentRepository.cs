@@ -17,8 +17,11 @@ namespace Persistence.Repositories
         }
         public async Task<Student> GetStudentAsync(Guid userId) => await _Context.Students
                 .Where(x => x.UserId == userId)
-                .Include(x => x.User).SingleOrDefaultAsync();
-        
+                .Include(x => x.User)
+            .Include(x => x.Level)
+            .Include(x => x.Department)
+            .SingleOrDefaultAsync();
+
         public async Task<List<Student>> GetStudentsByLevelIdAsync(Guid levelId) => await _Context.Students
             .Where(z => z.LevelId == levelId)
             .Include(x => x.User).ToListAsync();

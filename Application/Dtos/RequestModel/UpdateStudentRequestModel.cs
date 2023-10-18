@@ -6,6 +6,5 @@ namespace Application.Dtos.RequestModel
     {
         public DateTime? DateOfBirth { get; set; }
         public string? NextOfKin { get; set; }
-        //public UpdateUserRequestModel? User { get; set; }
     }
 }

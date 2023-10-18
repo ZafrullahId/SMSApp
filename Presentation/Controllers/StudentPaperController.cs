@@ -38,10 +38,9 @@ namespace Host.Controllers
         }
         [HttpGet("{paperId}/studentpapers")]
         [OpenApiOperation("Get All Student Paper by PaperId ", "")]
-        public async Task<IActionResult> GetAllStudentPaper([FromQuery]PaginationFilter filter, Guid paperId)
+        public async Task<IActionResult> GetAllStudentPaper(Guid paperId)
         {
-            var route = Request.Path.Value;
-            var studentsPapers = await _studentPaperService.GetStudentsPapersAsync(filter, route, paperId);
+            var studentsPapers = await _studentPaperService.GetStudentsPapersAsync(paperId);
             return studentsPapers.Success ? Ok(studentsPapers) : BadRequest(studentsPapers);
         }
         [HttpGet("{paperId}/release"), Authorize(Roles = "Admin")]

@@ -9,8 +9,9 @@ namespace Domain.Entity
     public class Subject : AuditableEntity
     {
         public string Name { get; set; }
-        [Required]
         public string Description { get; set; }
+        public Guid? DepartmentId { get; set; }
+        public Department Department { get; set; }
         public List<Paper> Papers { get; set; } = new List<Paper>();
         public List<ExamSubjects> ExamSubjects { get; set; } = new List<ExamSubjects>();
         public List<StaffsSubjects> StaffsSubjects { get; set; } = new List<StaffsSubjects>();

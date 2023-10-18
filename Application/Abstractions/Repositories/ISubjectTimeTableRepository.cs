@@ -12,6 +12,5 @@ namespace Application.Abstractions.Repositories
     {
         Task<IEnumerable<SubjectTimeTable>> GetSubjectTimeTableAsync(Guid timeTableId);
         Task<IEnumerable<SubjectTimeTable>> GetSubjectTimeTableAsync(string seasion, Term term);
-        Task<IEnumerable<SubjectTimeTable>> GetSubjectTimeTableAsync(Guid timeTableId, int skipLength, int takeLength);
     }
 }

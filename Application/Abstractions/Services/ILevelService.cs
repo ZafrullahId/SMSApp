@@ -10,10 +10,10 @@ namespace Application.Abstractions.Services
 {
     public interface ILevelService
     {
+        Task<Results<LevelDto>> GetLevelsAsync();
         Task<BaseResponse> DeleteLevelAsync(Guid id);
         Task<Response<LevelDto>> GetLevelAsync(Guid id);
         Task<Results<LevelDto>> GetLevelsByStaffId(Guid staffId);
         Task<BaseResponse> CreateLevel(CreateLevelRequestModel model);
-        Task<Responses<LevelDto>> GetLevelsAsync(PaginationFilter filter, string route);
     }
 }

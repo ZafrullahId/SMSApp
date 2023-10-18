@@ -14,13 +14,15 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly IStaffRepository _staffRepository;
         private readonly ISubjectRepository _subjecutorRepository;
+        private readonly IDepartmentRepository _departmentRepository;
         private readonly IStaffSubjectRepository _staffSubjectRepository;
-        public SubjectService(ISubjectRepository subjecutorRepository, IStaffRepository staffRepository, IStaffSubjectRepository staffSubjectRepository, IMapper mapper)
+        public SubjectService(ISubjectRepository subjecutorRepository, IStaffRepository staffRepository, IStaffSubjectRepository staffSubjectRepository, IMapper mapper, IDepartmentRepository departmentRepository)
         {
             _mapper = mapper;
             _staffRepository = staffRepository;
             _subjecutorRepository = subjecutorRepository;
             _staffSubjectRepository = staffSubjectRepository;
+            _departmentRepository = departmentRepository;
         }
         public async Task<BaseResponse> CreateAsync(CreateSubjectRequestModel model)
         {

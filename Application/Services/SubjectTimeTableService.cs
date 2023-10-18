@@ -55,17 +55,17 @@ namespace Application.Services
         //    return new BaseResponse { Message = $"Subject {model.SubjectName} successfully added to time table", Success = true }; 
         //}
 
-        public async Task<Responses<SubjectTimeTableDto>> GetTimeTableSubjectsAsync(PaginationFilter filter, string route, Guid timeTableId)
+        public async Task<Results<SubjectTimeTableDto>> GetTimeTableSubjectsAsync(Guid timeTableId)
         {
             var timeTable = await _timeTableRepository.GetAsync(x => x.Id.Equals(timeTableId));
-            if (timeTable == null) { return new Responses<SubjectTimeTableDto> { Message = "Time Table Subjects not retrieved", Success = false }; }
+            if (timeTable == null) { return new Results<SubjectTimeTableDto> { Message = "Time Table Subjects not retrieved", Success = false }; }
 
-            var subjectsTimeTable = await _subjectTimeTableRepository.GetSubjectTimeTableAsync(timeTableId, filter.PageNumber, filter.PageSize);
+            var subjectsTimeTable = await _subjectTimeTableRepository.GetSubjectTimeTableAsync(timeTableId);
             var subjectTimeTableDtoData = _mapper.Map<List<SubjectTimeTableDto>>(subjectsTimeTable);
-            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var totalRecords = await _subjectTimeTableRepository.CountAsync(x => x.TimeTableId == timeTableId);
-            var pagedReponse = PaginationHelper.CreatePagedReponse<SubjectTimeTableDto>(subjectTimeTableDtoData, validFilter, totalRecords, _uriService, route);
-            return new Responses<SubjectTimeTableDto> { Message = "Time Table Subjects Successfully retrieved", Success = true, Data = pagedReponse };
+            //var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            //var totalRecords = await _subjectTimeTableRepository.CountAsync(x => x.TimeTableId == timeTableId);
+            //var pagedReponse = PaginationHelper.CreatePagedReponse<SubjectTimeTableDto>(subjectTimeTableDtoData, validFilter, totalRecords, _uriService, route);
+            return new Results<SubjectTimeTableDto> { Message = "Time Table Subjects Successfully retrieved", Success = true, Data = subjectTimeTableDtoData };
         }
 
         public async Task<Results<IEnumerable<SubjectTimeTableDto>>> GetTimeTableByYearAndTerm(string seasion, Term term)

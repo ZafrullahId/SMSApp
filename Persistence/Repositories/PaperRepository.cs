@@ -44,6 +44,9 @@ namespace Persistence.Repositories
         {
             return await _Context.Papers
                 .Include(x => x.Exam)
+                .Include(x => x.Level)
+                .Include(x => x.Subject)
+                .ThenInclude(x => x.Department)
                 .SingleOrDefaultAsync(x => x.Id == id && x.IsDeleted == false);
         }
     }

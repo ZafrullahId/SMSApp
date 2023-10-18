@@ -38,7 +38,7 @@ namespace Application.Services
             var studentUser = await _studentRepository.GetStudentAsync(studentUserId);
             if (studentUser == null) { return new BaseResponse { Message = "Student not found", Success = false }; }
 
-            var paper = await _paperRepository.GetPaperAsync(paperId);
+            var paper = await _paperRepository.GetAsync(paperId);
             if (paper == null) { return new BaseResponse { Message = "This Paper Dosn't exist", Success = false }; }
 
             if (paper.PaperStatus == PaperStatus.Ended) { return new BaseResponse { Message = "This Paper has been ended", Success = false }; }
@@ -52,7 +52,7 @@ namespace Application.Services
             var exist = await _studentPaperRepository.ExistsAsync(x => x.StudentId == studentUser.Id && x.PaperId == paperId);
             if (exist) { return new BaseResponse { Message = "Exam paper has been taking by you already", Success = false }; }
 
-            var studentPaper = new StudentsPapers
+            var studentPaper = new StudentPaper
             {
                 StudentId = studentUser.Id,
                 PaperId = paper.Id,
@@ -80,19 +80,19 @@ namespace Application.Services
             return new Response<StudentPapersDto> { Message = "Successful", Success = true, Data = studentSubjectDtoData };
         }
 
-        public async Task<Responses<StudentPapersDto>> GetStudentsPapersAsync(PaginationFilter filter, string route, Guid paperId)
+        public async Task<Results<StudentPapersDto>> GetStudentsPapersAsync(Guid paperId)
         {
             var paper = await _paperRepository.GetAsync(paperId);
-            if (paper is null) { return new Responses<StudentPapersDto> { Message = "No paper found", Success = false }; }
+            if (paper is null) { return new Results<StudentPapersDto> { Message = "No paper found", Success = false }; }
 
-            var studentPapers = await _studentPaperRepository.GetStudentPaperAsync(paperId, filter.PageNumber, filter.PageSize);
-            if (studentPapers.IsNullOrEmpty()) { return new Responses<StudentPapersDto> { Message = "No student has taking this Exam", Success = false }; }
+            var studentPapers = await _studentPaperRepository.GetStudentPaperAsync(paperId);
+            if (studentPapers.IsNullOrEmpty()) { return new Results<StudentPapersDto> { Message = "No student has taking this Exam", Success = false }; }
 
             var studentPaperDtoData = _mapper.Map<List<StudentPapersDto>>(studentPapers);
-            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var totalRecords = await _studentPaperRepository.CountAsync(x => x.PaperId == paperId);
-            var pagedReponse = PaginationHelper.CreatePagedReponse<StudentPapersDto>(studentPaperDtoData, validFilter, totalRecords, _uriService, route);
-            return new Responses<StudentPapersDto> { Message = "Papers found", Success = true, Data = pagedReponse };
+            //var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            //var totalRecords = await _studentPaperRepository.CountAsync(x => x.PaperId == paperId);
+            //var pagedReponse = PaginationHelper.CreatePagedReponse<StudentPapersDto>(studentPaperDtoData, validFilter, totalRecords, _uriService, route);
+            return new Results<StudentPapersDto> { Message = "Papers found", Success = true, Data = studentPaperDtoData };
         }
 
         public async Task<BaseResponse> ReleasePaperResults(Guid paperId)

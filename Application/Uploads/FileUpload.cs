@@ -47,7 +47,7 @@ namespace Application.Uploads
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using var package = new ExcelPackage(file.OpenReadStream());
             var worksheet = package.Workbook.Worksheets[0];
-            if (worksheet.Cells[1, 2].Value.ToString() == "Class" && worksheet.Cells[1, 3].Value.ToString() == "Phone")
+            if (worksheet.Cells[1, 2].Value.ToString() == "Class" && worksheet.Cells[1, 3].Value.ToString() == "Phone" && worksheet.Cells[1, 4].Value.ToString() == "Department")
             {
                 return true;
             }

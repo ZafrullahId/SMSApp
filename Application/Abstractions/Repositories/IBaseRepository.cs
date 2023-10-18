@@ -17,7 +17,7 @@ namespace Application.Abstractions.Repositories
         Task<T> GetAsync(Guid id);
         Task<T> UpdateAsync(T entity);
         Task<int> CountAsync();
-        Task<List<T>> GetFilterAsync(int skipLength, int takeLength);
+        //Task<List<T>> GetFilterAsync(int skipLength, int takeLength);
         Task<List<T>> GetFilterAsync(int skipLength, int takeLength, Expression<Func<T, bool>>? expression);
         Task<int> CountAsync(Expression<Func<T, bool>> expression);
     }

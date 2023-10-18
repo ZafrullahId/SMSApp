@@ -12,6 +12,6 @@ namespace Application.Abstractions.Repositories
 {
     public interface ILevelTimeTableService
     {
-        Task<Responses<SubjectTimeTableDto>> GetLevelTimeTableAsync(PaginationFilter filter, string route, Guid levelId, Term term, string seasion);
+        Task<Response<LevelTimeTableDto>> GetLevelTimeTableAsync(Guid levelId, Term term, string seasion);
     }
 }

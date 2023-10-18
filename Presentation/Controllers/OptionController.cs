@@ -28,7 +28,7 @@ namespace Host.Controllers
         }
 
         [HttpGet("{questionId}/options"), Authorize]
-        [OpenApiOperation("Get options of a Question by question id", " ")]
+        [OpenApiOperation("Get options of a Question by question id", "")]
         public async Task<IActionResult> GetOptionsByQuestionId(Guid questionId)
         {
             var options = await _optionService.GetOptionByQuestionIdAsync(questionId);
@@ -36,7 +36,7 @@ namespace Host.Controllers
         }
 
         [HttpGet("/{optionId}/{questionId}/{studentId}")]
-        [OpenApiOperation("Check if option is correct by optioniId,studentId and questionId ")]
+        [OpenApiOperation("Check if option is correct by optioniId,studentId and questionId ", "")]
         public async Task<IActionResult> CheckOptionAsync(Guid optionId, Guid questionId, Guid studentId)
         {
             var option = await _optionService.CheckOptionAsync(optionId, questionId, studentId);
@@ -52,7 +52,7 @@ namespace Host.Controllers
         }
 
         [HttpDelete("{optionId}/option"), Authorize(Roles = "Teacher")]
-        [OpenApiOperation("Deletes an option by id ", " ")]
+        [OpenApiOperation("Deletes an option by id ", "")]
         public async Task<IActionResult> DeleteAsync(Guid optionId)
         {
             var option = await _optionService.DeleteAsync(optionId);

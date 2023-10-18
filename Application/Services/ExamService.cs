@@ -33,28 +33,28 @@ namespace Application.Services
             await _examRepository.SaveChangesAsync();
             return new BaseResponse { Message = "Exam Successfully created", Success = true };
         }
-        public async Task<Responses<ExamDto>> GetAllExamsAsync(PaginationFilter filter, string route)
+        public async Task<Results<ExamDto>> GetAllExamsAsync()
         {
-            var exams = await _examRepository.GetFilterAsync(filter.PageNumber, filter.PageSize);
-            if (exams.IsNullOrEmpty()) { return new Responses<ExamDto> { Message = "No Exam written yet", Success = false }; }
+            var exams = await _examRepository.GetAllAsync();
+            if (exams.IsNullOrEmpty()) { return new Results<ExamDto> { Message = "No Exam written yet", Success = false }; }
 
             var pagedData = _mapper.Map<List<ExamDto>>(exams);
-            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var totalRecords = await _examRepository.CountAsync();
-            var pagedReponse = PaginationHelper.CreatePagedReponse<ExamDto>(pagedData, validFilter, totalRecords, uriService, route);
+            //var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            //var totalRecords = await _examRepository.CountAsync();
+            //var pagedReponse = PaginationHelper.CreatePagedReponse<ExamDto>(pagedData, validFilter, totalRecords, uriService, route);
 
-            return new Responses<ExamDto> { Message = "Exams retrived successfully", Success = true, Data = pagedReponse };
+            return new Results<ExamDto> { Message = "Exams retrived successfully", Success = true, Data = pagedData };
         }
-        public async Task<Responses<ExamDto>> GetAllOngoingExamsAsync(PaginationFilter filter, string route)
+        public async Task<Results<ExamDto>> GetAllOngoingExamsAsync()
         {
-            var exams = await _examRepository.GetFilterAsync(filter.PageNumber, filter.PageSize, x => !x.IsEnded);
-            if (exams.IsNullOrEmpty()) { return new Responses<ExamDto> { Message = "No Ongoing Exam", Success = false }; }
+            var exams = await _examRepository.GetAllAsync(x => x.IsEnded == false);
+            if (exams.IsNullOrEmpty()) { return new Results<ExamDto> { Message = "No Ongoing Exam", Success = false }; }
 
             var pagedData = _mapper.Map<List<ExamDto>>(exams);
-            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var totalRecords = await _examRepository.CountAsync(x => !x.IsEnded);
-            var pagedReponse = PaginationHelper.CreatePagedReponse<ExamDto>(pagedData, validFilter, totalRecords, uriService, route);
-            return new Responses<ExamDto> { Message = "Ongoing Exams retrived successfully", Success = true, Data = pagedReponse };
+            //var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            //var totalRecords = await _examRepository.CountAsync(x => !x.IsEnded);
+            //var pagedReponse = PaginationHelper.CreatePagedReponse<ExamDto>(pagedData, validFilter, totalRecords, uriService, route);
+            return new Results<ExamDto> { Message = "Ongoing Exams retrived successfully", Success = true, Data = pagedData };
         }
         public async Task<BaseResponse> ChangeExamStateAsync(Guid id)
         {

@@ -14,6 +14,6 @@ namespace Application.Abstractions.Services
         Task<BaseResponse> TerminatePaperAsync(Guid paperId);
         Task<BaseResponse> UpdatePaperAync(Guid Id, UpdatePaperRequestModel model);
         Task<BaseResponse> Create(CreatePaperRequestModel model, Guid examId, Guid staffId, Guid timeTableId);
-        Task<Responses<PaperDto>> GetAllPapersByLevelIdAsync(PaginationFilter filter, string route, Guid levelId, Guid examId);
+        Task<Results<PaperDto>> GetAllPapersByLevelIdAsync(Guid levelId, Guid examId);
     }
 }

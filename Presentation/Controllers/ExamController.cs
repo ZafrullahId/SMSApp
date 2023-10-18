@@ -30,19 +30,18 @@ namespace Host.Controllers
             return exam.Success ? Ok(exam) : BadRequest(exam);
         }
         [HttpGet]
-        [OpenApiOperation("Get all Exam")]
-        public async Task<IActionResult> GetAllExamAsync([FromQuery]PaginationFilter filter)
+        [OpenApiOperation("Get all Exam", "")]
+        public async Task<IActionResult> GetAllExamAsync()
         {
-            var route = Request.Path.Value;
-            var exams = await _examService.GetAllExamsAsync(filter, route);
+            var exams = await _examService.GetAllExamsAsync();
             return exams.Success ? Ok(exams) : BadRequest(exams);
         }
         [HttpGet("state"), Authorize]
-        [OpenApiOperation("Get all ongoing exam")]
-        public async Task<IActionResult> GetOngoingExamsAsync([FromQuery] PaginationFilter filter)
+        [OpenApiOperation("Get all ongoing exam", "")]
+        public async Task<IActionResult> GetOngoingExamsAsync()
         {
             var route = Request.Path.Value;
-            var exams = await _examService.GetAllOngoingExamsAsync(filter, route);
+            var exams = await _examService.GetAllOngoingExamsAsync();
             return exams.Success ? Ok(exams) : BadRequest(exams);
         }
         [HttpPut("{id}/status"), Authorize]

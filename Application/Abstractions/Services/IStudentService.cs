@@ -8,10 +8,10 @@ namespace Application.Abstractions.Services
 {
     public interface IStudentService
     {
+        Task<Results<StudentDto>> GetAllStudentsAsync();
         Task<BaseResponse> UploadStudentListFileAsync(IFormFile file);
         Task<Response<StudentDto>> GetStudentByUserIdAsync(Guid userId);
         Task<BaseResponse> CreateAsync(CreateStudentRequestModel model, Guid staffUserId);
         Task<BaseResponse> UpdateStudentAsync(Guid userId, UpdateStudentRequestModel model);
-        Task<Responses<StudentDto>> GetAllStudentsAsync(PaginationFilter filter, string route);
     }
 }

@@ -17,7 +17,7 @@ namespace SMSApp.Controllers
             _roleService = roleService;
         }
         [HttpPost]
-        [OpenApiOperation("Create Role"," ")]
+        [OpenApiOperation("Create Role","")]
         public async Task<IActionResult> CreateAsync([FromForm]CreateRoleRequestModel model)
         {
             var role = await _roleService.Create(model);
@@ -25,7 +25,7 @@ namespace SMSApp.Controllers
         }
 
         [HttpGet("{name}")]
-        [OpenApiOperation("Get Role By A Specific Name ")]
+        [OpenApiOperation("Get Role By A Specific Name", "")]
         public async Task<IActionResult> GetRoleAsync([FromRoute]string name)
         {
             var role = await _roleService.GetRoleAsync(name);
@@ -33,7 +33,7 @@ namespace SMSApp.Controllers
         }
 
         [HttpGet("roles")]
-        [OpenApiOperation("Get All Roles")]
+        [OpenApiOperation("Get All Roles", "")]
         public async Task<IActionResult> GetAllRolesAsync()
         {
             var roles = await _roleService.GetRolesAsync();

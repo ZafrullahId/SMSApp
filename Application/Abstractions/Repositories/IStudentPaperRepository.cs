@@ -2,10 +2,10 @@ using Domain.Entity;
 
 namespace Application.Abstractions.Repositories
 {
-    public interface IStudentPaperRepository : IBaseRepository<StudentsPapers>
+    public interface IStudentPaperRepository : IBaseRepository<StudentPaper>
     {
-       Task<List<StudentsPapers>> GetAllAsync(Guid paperId);
-       Task<StudentsPapers> GetStudentPaperByStudentId(Guid studentId, Guid paperId);
-        Task<List<StudentsPapers>> GetStudentPaperAsync(Guid paperId, int skipLength, int takeLength);
+        Task<List<StudentPaper>> GetAllAsync(Guid paperId);
+        Task<StudentPaper> GetStudentPaperByStudentId(Guid studentId, Guid paperId);
+        Task<List<StudentPaper>> GetStudentPaperAsync(Guid paperId);
     }
 }

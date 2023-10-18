@@ -35,17 +35,17 @@ namespace Application.Services
             await _levelRepository.SaveChangesAsync();
             return new BaseResponse { Message = "Successfully Created", Success = true };
         }
-        public async Task<Responses<LevelDto>> GetLevelsAsync(PaginationFilter filter, string route)
+        public async Task<Results<LevelDto>> GetLevelsAsync()
         {
-            var levels = await _levelRepository.GetFilterAsync(filter.PageNumber, filter.PageSize);
+            var levels = await _levelRepository.GetAllAsync();
             var orderedLevel = levels.OrderBy(x => x.Name).ToList();
-            if (levels.IsNullOrEmpty()) { return new Responses<LevelDto> { Message = "No level yet", Success = false }; }
+            if (levels.IsNullOrEmpty()) { return new Results<LevelDto> { Message = "No level yet", Success = false }; }
 
             var data = _mapper.Map<List<LevelDto>>(orderedLevel);
-            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var totalRecords = await _levelRepository.CountAsync();
-            var pagedReponse = PaginationHelper.CreatePagedReponse<LevelDto>(data, validFilter, totalRecords, _uriService, route);
-            return new Responses<LevelDto> { Message = "Levels found successfully", Success = true, Data = pagedReponse };
+            //var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            //var totalRecords = await _levelRepository.CountAsync();
+            //var pagedReponse = PaginationHelper.CreatePagedReponse<LevelDto>(data, validFilter, totalRecords, _uriService, route);
+            return new Results<LevelDto> { Message = "Levels found successfully", Success = true, Data = data };
         }
         public async Task<Response<LevelDto>> GetLevelAsync(Guid id)
         {

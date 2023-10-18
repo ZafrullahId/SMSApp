@@ -34,11 +34,12 @@ namespace Application.Mapping
                 .ForMember(x => x.Name, y => y.MapFrom(z => z.Role.Name))
                 .ForMember(x => x.Description, y => y.MapFrom(z => z.Role.Description));
             CreateMap<Subject, SubjectDto>();
-            CreateMap<Student, StudentDto>();
+            CreateMap<Student, StudentDto>()
+                .ForMember(x => x.AdmissionNo, y => y.MapFrom(x => x.AdmissionNo));
             CreateMap<StaffsLevels, StaffLevelDto>()
                 .ForMember(x => x.StaffDto, y => y.MapFrom(x => x.Staff))
                 .ForMember(x => x.LevelDtos, y => y.MapFrom(x => new List<LevelDto>()));
-            CreateMap<StudentsPapers, StudentPapersDto>()
+            CreateMap<StudentPaper, StudentPapersDto>()
                 .ForMember(x => x.FullName, y => y.MapFrom(z => z.Student.User.FullName))
                 .ForMember(x => x.ProfileImage, y => y.MapFrom(z => z.Student.User.ProfileImage));
             CreateMap<StaffsLevels, LevelDto>()
@@ -60,21 +61,23 @@ namespace Application.Mapping
                 .ForMember(x => x.StartDate, y => y.MapFrom(z => z.StartTime.ToLongDateString()))
                 .ForMember(x => x.StartTime, y => y.MapFrom(z => z.StartTime.ToShortTimeString()));
             CreateMap<LevelTimeTable, LevelTimeTableDto>();
+            CreateMap<Department, DepartmentDto>();
 
             CreateMap<CreateExamRequestModel, Exam>();
-            CreateMap<CreateLevelRequestModel, Level>();
-            CreateMap<CreateOptionRequestModel, Choice>();
-            CreateMap<CreatePaperRequestModel, Paper>();
-            CreateMap<CreatePaperRequestModel, SubjectTimeTable>()
-                .ForMember(x => x.StartTime, y => y.MapFrom(z => z.StartDate));
-            CreateMap<CreateOptionRequestModel, Choice>();
-            CreateMap<CreateQuestionRequestModel, Question>();
-            CreateMap<CreateStaffRequestModel, User>();
-            CreateMap<CreateStudentRequestModel, Student>();
             CreateMap<CreateUserRequestModel, User>();
             CreateMap<CreateRoleRequestModel, Role>();
+            CreateMap<CreateStaffRequestModel, User>();
+            CreateMap<CreateLevelRequestModel, Level>();
+            CreateMap<CreatePaperRequestModel, Paper>();
+            CreateMap<CreateOptionRequestModel, Choice>();
+            CreateMap<CreateOptionRequestModel, Choice>();
             CreateMap<CreateSubjectRequestModel, Subject>();
+            CreateMap<CreateStudentRequestModel, Student>();
+            CreateMap<CreateQuestionRequestModel, Question>();
             CreateMap<CreateTimeTableRequestModel, TimeTable>();
+            CreateMap<CreateDepartmentRequestModel, Department>();
+            CreateMap<CreatePaperRequestModel, SubjectTimeTable>()
+                .ForMember(x => x.StartTime, y => y.MapFrom(z => z.StartDate));
             CreateMap<CreateSubjectTimeTableRequestModel, SubjectTimeTable>();
 
         }

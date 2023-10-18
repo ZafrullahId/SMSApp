@@ -42,7 +42,7 @@ namespace Host.Controllers
         }
 
         [HttpDelete("{id}")]
-        [OpenApiOperation("Delete staff By id")]
+        [OpenApiOperation("Delete staff By id", "")]
         public async Task<IActionResult> DeleteAsync(Guid id)
         {
             var isDeleted = await _staffService.DeleteAsync(id);

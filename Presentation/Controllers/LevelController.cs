@@ -20,36 +20,35 @@ namespace Host.Controllers
             _levelService = levelService;
         }
         [HttpPost, Authorize]
-        [OpenApiOperation("Create your level ")]
+        [OpenApiOperation("Create your level ", "")]
         public async Task<IActionResult> CreateAsync([FromForm]CreateLevelRequestModel model)
         {
             var level = await _levelService.CreateLevel(model);
             return level.Success ? Ok(level) : BadRequest(level);
         }
         [HttpGet, Authorize]
-        [OpenApiOperation("Get All Levels")]
-        public async Task<IActionResult> GetAllLevelsAsync([FromQuery] PaginationFilter filter)
+        [OpenApiOperation("Get All Levels", "")]
+        public async Task<IActionResult> GetAllLevelsAsync()
         {
-            var route = Request.Path.Value;
-            var levels = await _levelService.GetLevelsAsync(filter, route);
+            var levels = await _levelService.GetLevelsAsync();
             return levels.Success ? Ok(levels) : BadRequest(levels);
         }
         [HttpGet("{id}"), Authorize]
-        [OpenApiOperation("Get all level by Id ")]
+        [OpenApiOperation("Get all level by Id ", "")]
         public async Task<IActionResult> GetLevelAsync(Guid id)
         {
             var level = await _levelService.GetLevelAsync(id);
             return level.Success ? Ok(level) : BadRequest(level);
         }
         [HttpDelete("{id}"), Authorize]
-        [OpenApiOperation("Delete level by Id ")]
+        [OpenApiOperation("Delete level by Id ", "")]
         public async Task<IActionResult> DeleteLevelAsync(Guid id)
         {
             var isDeleted = await _levelService.DeleteLevelAsync(id);
             return !isDeleted.Success ? BadRequest(isDeleted) : Ok(isDeleted);
         }
         [HttpGet("{id}/stafflevels"), Authorize]
-        [OpenApiOperation("Get levels of a staff by Id ")]
+        [OpenApiOperation("Get levels of a staff by Id ", "")]
         public async Task<IActionResult> GetLevelsByStaffIdAsync(Guid id)
         {
             var levels = await _levelService.GetLevelsByStaffId(id);

@@ -21,7 +21,7 @@ namespace Host.Controllers
             _optionService = optionService;
         }
 
-        [HttpPost("{examId}/{staffId}/{timeTableId}"), Authorize(Roles = "Teacher")]
+        [HttpPost("{examId}/{staffId}/{timeTableId}")]
         [OpenApiOperation("Create paper by examId ,staffid and timetableId ", "")]
         public async Task<IActionResult> CreateAsync([FromForm]CreatePaperRequestModel model, Guid examId, Guid staffId, Guid timeTableId)
         {
@@ -39,15 +39,15 @@ namespace Host.Controllers
 
         [HttpGet("{examId}/{levelId}/papers")]
         [OpenApiOperation("Gets all papers by examId and levelId ", "")]
-        public async Task<IActionResult> GetAllPaperAsync([FromQuery]PaginationFilter filter,Guid examId, Guid levelId)
+        public async Task<IActionResult> GetAllPaperAsync(Guid examId, Guid levelId)
         {
             var route = Request.Path.Value;
-            var papers = await _paperService.GetAllPapersByLevelIdAsync(filter, route, levelId, examId);
+            var papers = await _paperService.GetAllPapersByLevelIdAsync(levelId, examId);
             return papers.Success ? Ok(papers) : BadRequest(papers);
         }
 
         [HttpPut("{paperId}"), Authorize(Roles = "Teacher")]
-        [OpenApiOperation("Update Paper by id"," ")]
+        [OpenApiOperation("Update Paper by id","")]
         public async Task<IActionResult> UpadetAsync(Guid paperId, [FromForm]UpdatePaperRequestModel model)
         {
             var paper = await _paperService.UpdatePaperAync(paperId, model);

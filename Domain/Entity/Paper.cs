@@ -18,6 +18,6 @@ namespace Domain.Entity
         public Guid ExamId { get; set; }
         public Exam Exam { get; set; }
         public List<Question> Questions { get; set; } = new List<Question>();
-        public List<StudentsPapers> StudentsSubject { get; set; } = new List<StudentsPapers>();
+        public IEnumerable<StudentPaper> StudentPaper { get; set; } = new List<StudentPaper>();
     }
 }

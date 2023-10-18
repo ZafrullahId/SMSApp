@@ -51,7 +51,7 @@ namespace Host.Controllers
         }
 
         [HttpGet("{examId}/{levelId}/subjects")]
-        [OpenApiOperation("Get all subjects of an exam for a level by examId and levelId")]
+        [OpenApiOperation("Get all subjects of an exam for a level by examId and levelId", "")]
         public async Task<IActionResult> GetExamSubjectsByLevelIdAsync(Guid examId, Guid levelId)
         {
             var subjects = await _examSubjectsServices.GetExamSubjectsByLevelIdAsync(examId, levelId);

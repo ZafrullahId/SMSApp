@@ -1,4 +1,5 @@
 ﻿using Application.Abstractions.Services;
+using Application.Dtos;
 using Application.Dtos.RequestModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,10 +17,19 @@ namespace Host.Controllers
         {
             _userService = userService;
         }
+
         [AllowAnonymous]
         [HttpPost("Access")]
         [OpenApiOperation("Gets access to send request", "Gets access to send request")]
-        public async Task<IActionResult> LoginAsync([FromForm]LoginRequestModel model)
+        public async Task<ActionResult<LoginDto>> LoginAsync([FromBody]LoginRequestModel model)
+        {
+            var logging = await _userService.LoginAsync(model);
+            return logging.Success ? Ok(logging) : BadRequest(logging);
+        }
+        [AllowAnonymous]
+        [HttpPost("student")]
+        [OpenApiOperation("Gets access to send request", "Gets access to send request")]
+        public async Task<ActionResult<LoginDto>> LoginAsync([FromBody] StudentLoginRequestModel model)
         {
             var logging = await _userService.LoginAsync(model);
             return logging.Success ? Ok(logging) : BadRequest(logging);

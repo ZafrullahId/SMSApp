@@ -18,8 +18,8 @@ namespace Host.Controllers
             _studentService = studentService;
         }
 
-        [HttpPost, Authorize(Roles = "Teacher")]
-        [OpenApiOperation("Create Student", " ")]
+        [HttpPost]
+        [OpenApiOperation("Create Student", "")]
         public async Task<IActionResult> CreateAsync([FromForm]CreateStudentRequestModel model)
         {
             var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
@@ -29,25 +29,34 @@ namespace Host.Controllers
         }
 
         [HttpGet("{userId}")]
-        [OpenApiOperation("GetStudent by user id","")]
+        [OpenApiOperation("Get Student by user id","")]
         public async Task<IActionResult> GetStudentAsync(Guid userId)
         {
             var student = await _studentService.GetStudentByUserIdAsync(userId);
             return student.Success == true ? Ok(student) : BadRequest(student);
         }
 
-        [HttpGet("students")]
-        [OpenApiOperation("Get all student", " ")]
-        public async Task<IActionResult> GetAllAsync([FromQuery]PaginationFilter filter)
+        [HttpGet, Authorize(Roles = "Student")]
+        [OpenApiOperation("Get Student by token","")]
+        public async Task<IActionResult> GetLoggedInStudentAsync()
         {
-            var route = Request.Path.Value;
-            var students = await _studentService.GetAllStudentsAsync(filter,route);
+            var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+            var studentUserId = JWTAuthenticationManager.GetLoginId(token);
+            var student = await _studentService.GetStudentByUserIdAsync(studentUserId);
+            return student.Success == true ? Ok(student) : BadRequest(student);
+        }
+
+        [HttpGet("students")]
+        [OpenApiOperation("Get all student", "")]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            var students = await _studentService.GetAllStudentsAsync();
             return students.Success ? Ok(students) : BadRequest(students);
         }
 
         [HttpPut, Authorize]
         [OpenApiOperation("Update Student", "")]
-        public async Task<IActionResult> UpdateAsync([FromForm]UpdateStudentRequestModel model)
+        public async Task<IActionResult> UpdateAsync([FromBody]UpdateStudentRequestModel model)
         {
             var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
             var studentUserId = JWTAuthenticationManager.GetLoginId(token);

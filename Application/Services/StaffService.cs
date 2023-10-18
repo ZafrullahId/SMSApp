@@ -91,7 +91,7 @@ namespace Application.Services
         public async Task<Response<StaffLevelSubjectDto>> GetAsync(Guid id)
         {
             var staff = await _staffRepository.GetStaffByUserIdAsync(id);
-            if (staff is null) { return new Response<StaffLevelSubjectDto> { Message = "Stff not found", Success = false, }; }
+            if (staff is null) { return new Response<StaffLevelSubjectDto> { Message = "Staff not found", Success = false, }; }
             
             var levels = await _staffLevelRepository.GetLevelsByStaffIdAsync(staff.Id);
             if (levels.IsNullOrEmpty()) { return new Response<StaffLevelSubjectDto> { Message = "No Levels found for this satff", Success = false, }; }
@@ -114,7 +114,7 @@ namespace Application.Services
             staff.User.Email = model.Email ?? staff.User.Email;
             staff.User.Password = model.Password ?? staff.User.Password;
             staff.User.PhoneNumber = model.PhoneNumber ?? staff.User.PhoneNumber;
-            staff.User.ProfileImage = model.ProfileImage != null ? await _fileUpload.UploadPicAsync(model.ProfileImage) : staff.User.ProfileImage;
+            staff.User.ProfileImage = model.ProfileImage ?? staff.User.ProfileImage;
             await _staffRepository.UpdateAsync(staff);
             return new BaseResponse { Message = "Successfully Updated", Success = true, };
         }

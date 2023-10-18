@@ -39,10 +39,9 @@ namespace Host.Controllers
         }
         [HttpGet("{timeTableId}/timetablesubjects"), Authorize]
         [OpenApiOperation("Get TimeTable subjects by TimeTableId.", "")]
-        public async Task<IActionResult> GetTimeTableSubjectsAsync([FromQuery] PaginationFilter filter, Guid timeTableId)
+        public async Task<IActionResult> GetTimeTableSubjectsAsync(Guid timeTableId)
         {
-            var route = Request.Path.Value;
-            var timeTable = await _subjectTimeTableService.GetTimeTableSubjectsAsync(filter, route, timeTableId);
+            var timeTable = await _subjectTimeTableService.GetTimeTableSubjectsAsync(timeTableId);
             if (timeTable.Success) return Ok(timeTable);
             return BadRequest(timeTable);
         }
@@ -51,16 +50,15 @@ namespace Host.Controllers
         public async Task<IActionResult> GeTimeTableByYearAndTermAsync(string seasion, Term term)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var timeTable = await _subjectTimeTableService.GetTimeTableByYearAndTerm(seasion, term);
+            var timeTable = await _subjectTimeTableService.GetTimeTableByYearAndTerm(System.Net.WebUtility.UrlDecode(seasion), term);
             if (timeTable.Success) return Ok(timeTable);
             return BadRequest(timeTable);
         }
         [HttpGet("{levelId}/{term}/{seasion}")]
-        [OpenApiOperation("Get a level TimeTable By LevelId,Term and Season ")]
-        public async Task<IActionResult> GetLevelTimeTableAsync([FromQuery]PaginationFilter filter, Guid levelId, Term term, string seasion)
+        [OpenApiOperation("Get a level TimeTable By LevelId,Term and Season ", "")]
+        public async Task<IActionResult> GetLevelTimeTableAsync(Guid levelId, Term term, string seasion)
         {
-            var route = Request.Path.Value;
-            var timeTable = await _levelTimeTableService.GetLevelTimeTableAsync(filter, route, levelId, term, seasion);
+            var timeTable = await _levelTimeTableService.GetLevelTimeTableAsync(levelId, term, System.Net.WebUtility.UrlDecode(seasion));
             if (timeTable.Success) return Ok(timeTable);
             return BadRequest(timeTable);
         }

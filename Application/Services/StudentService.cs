@@ -32,8 +32,9 @@ namespace Application.Services
         private readonly ILevelRepository _levelRepository;
         private readonly IStudentRepository _studentRepository;
         private readonly IUserRoleRepository _userRoleRepository;
+        private readonly IDepartmentRepository _departmentRepository;
         private readonly IStaffLevelRepository _staffLevelRepository;
-        public StudentService(IStudentRepository studentRepository, IUserRepository userRepository, ILevelRepository levelRepository, IRoleRepository roleRepository, IMailService emailService, IUserRoleRepository userRoleRepository, IFileUpload fileUpload, IMapper mapper, ISMSService smsservice, IStaffLevelRepository staffLevelRepository, IUriService uriService)
+        public StudentService(IStudentRepository studentRepository, IUserRepository userRepository, ILevelRepository levelRepository, IRoleRepository roleRepository, IMailService emailService, IUserRoleRepository userRoleRepository, IFileUpload fileUpload, IMapper mapper, ISMSService smsservice, IStaffLevelRepository staffLevelRepository, IUriService uriService, IDepartmentRepository departmentRepository)
         {
             _mapper = mapper;
             _smsservice = smsservice;
@@ -46,6 +47,7 @@ namespace Application.Services
             _studentRepository = studentRepository;
             _userRoleRepository = userRoleRepository;
             _staffLevelRepository = staffLevelRepository;
+            _departmentRepository = departmentRepository;
         }
         //public async Task<BaseResponse> CreateAsync(UpdateStudentRequestModel model)
         //{
@@ -91,10 +93,13 @@ namespace Application.Services
         {
             var level = await _levelRepository.GetAsync(x => x.Name == model.LevelName);
             var exist = await _staffLevelRepository.ExistsAsync(x => x.Staff.UserId == staffUserId && x.LevelId == level.Id);
-            if (!exist) { return new BaseResponse { Message = "Can <b>Only</b> added by Staff of {LevelName}", Success = false }; }
+            if (!exist) { return new BaseResponse { Message = $"Can Only added by Staff of {level.Name}", Success = false }; }
 
             var role = await _roleRepository.GetAsync(x => x.Name.ToLower() == "student");
             if (role is null) { return new BaseResponse { Message = "Student role not found", Success = false }; }
+
+            var department = await _departmentRepository.GetAsync(model.DepartmentId);
+            if (department is null) { return new BaseResponse { Success = false, Message = "Department not found" }; }
 
             var phoneNoExist = await _userRepository.ExistsAsync(x => x.PhoneNumber == model.PhoneNumber);
             if (phoneNoExist) { return new BaseResponse { Message = "Phone number already exist", Success = false }; }
@@ -103,10 +108,12 @@ namespace Application.Services
                 Password = new Random().Next(2014, 9089).ToString(),
                 PhoneNumber = model.PhoneNumber,
             };
-            var student = new Student { LevelId = level.Id, UserId = user.Id, User = user };
+            var userRole = new UserRole { UserId = user.Id, RoleId = role.Id };
+            await _userRoleRepository.CreateAsync(userRole);
+            var student = new Student { LevelId = level.Id, UserId = user.Id, User = user, DepartmentId = department.Id };
             await _studentRepository.CreateAsync(student);
             await _studentRepository.SaveChangesAsync();
-            string body = $"Congratulations! Your admission number is {student.AdmissionNo} and " +
+            string body = $"Congratulations! You've been successfully added to {department.Name} Department {level.Name}. Your admission number is {student.AdmissionNo} and " +
                 $"your password is {user.Password}. To complete your profile and change your password please visit <url>";
             var sent = _smsservice.SendSmsAsync(model.PhoneNumber, "18787897387", body);
             if (!sent) { return new BaseResponse { Message = "Something went wrong", Success = false }; }
@@ -114,25 +121,29 @@ namespace Application.Services
         }
         public async Task<Response<StudentDto>> GetStudentByUserIdAsync(Guid userId)
         {
-            var user = await _userRepository.GetAsync(x => x.Id == userId);
-            if (user is null) { return new Response<StudentDto> { Message = "User not found", Success = false }; }
-
-            var student = await _studentRepository.GetAsync(x => x.UserId == userId);
-            if (student is null) { return new Response<StudentDto> { Message = "Student not found", Success = false }; }
-
-            var level = await _levelRepository.GetAsync(x => x.Id == student.LevelId);
-            if (level is null) { return new Response<StudentDto> { Message = "Level not found", Success = false }; }
-
-            student.User = user;
-            student.Level = level;
+            var student = await _studentRepository.GetStudentAsync(userId);
+            if (student == null) { return new Response<StudentDto> { Message = "Student not found", Success = false }; }
             var studentDtoData = _mapper.Map<StudentDto>(student);
+
+            //var user = await _userRepository.GetAsync(x => x.Id == userId);
+            //if (user is null) { return new Response<StudentDto> { Message = "User not found", Success = false }; }
+
+            //var student = await _studentRepository.GetAsync(x => x.UserId == userId);
+            //if (student is null) { return new Response<StudentDto> { Message = "Student not found", Success = false }; }
+
+            //var level = await _levelRepository.GetAsync(x => x.Id == student.LevelId);
+            //if (level is null) { return new Response<StudentDto> { Message = "Level not found", Success = false }; }
+
+            //student.User = user;
+            //student.Level = level;
+            //var studentDtoData = _mapper.Map<StudentDto>(student);
             return new Response<StudentDto> { Message = "Student Successfully retrieved", Success = true, Data = studentDtoData };
         }
 
-        public async Task<Responses<StudentDto>> GetAllStudentsAsync(PaginationFilter filter, string route)
+        public async Task<Results<StudentDto>> GetAllStudentsAsync()
         {
-            var students = await _studentRepository.GetFilterAsync(filter.PageNumber, filter.PageSize);
-            if (students.IsNullOrEmpty()) { return new Responses<StudentDto> { Message = "No student yet", Success = false }; }
+            var students = await _studentRepository.GetAllAsync();
+            if (students.IsNullOrEmpty()) { return new Results<StudentDto> { Message = "No student yet", Success = false }; }
 
             List<StudentDto> studentDtos = new();
 
@@ -140,7 +151,7 @@ namespace Application.Services
             {
 
                 var user = await _userRepository.GetAsync(x => x.Id == student.UserId);
-                if (user is null) { return new Responses<StudentDto> { Message = "User not found", Success = false }; }
+                if (user is null) { return new Results<StudentDto> { Message = "User not found", Success = false }; }
 
                 var level = await _levelRepository.GetAsync(x => x.Id == student.LevelId);
                 student.User = user;
@@ -148,10 +159,10 @@ namespace Application.Services
                 var studentDtoData = _mapper.Map<StudentDto>(student);
                 studentDtos.Add(studentDtoData);
             }
-            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var totalRecords = await _studentRepository.CountAsync();
-            var pagedReponse = PaginationHelper.CreatePagedReponse<StudentDto>(studentDtos, validFilter, totalRecords, _uriService, route);
-            return new Responses<StudentDto> { Message = "Students successfully retrieved", Success = true, Data = pagedReponse };
+            //var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            //var totalRecords = await _studentRepository.CountAsync();
+            //var pagedReponse = PaginationHelper.CreatePagedReponse<StudentDto>(studentDtos, validFilter, totalRecords, _uriService, route);
+            return new Results<StudentDto> { Message = "Students successfully retrieved", Success = true, Data = studentDtos };
         }
 
         public async Task<BaseResponse> UpdateStudentAsync(Guid userId, UpdateStudentRequestModel model)
@@ -159,8 +170,8 @@ namespace Application.Services
             var student = await _studentRepository.GetStudentAsync(userId);
             if (student is null) { return new BaseResponse { Message = "Profile not found", Success = false }; }
 
-            var mailExist = await _userRepository.ExistsAsync(x => x.Email == model.Email);
-            if (mailExist) { return new BaseResponse { Message = "Email already in use",Success = false }; }
+            //var mailExist = await _userRepository.ExistsAsync(x => x.Email == model.Email);
+            //if (mailExist) { return new BaseResponse { Message = "Email already in use", Success = false }; }
 
             student.NextOfKin = model.NextOfKin ?? student.NextOfKin;
             student.DateOfBirth = model.DateOfBirth ?? student.DateOfBirth;
@@ -168,7 +179,7 @@ namespace Application.Services
             student.User.Email = model.Email ?? student.User.Email;
             student.User.FullName = model.FullName ?? student.User.FullName;
             student.User.PhoneNumber = model.PhoneNumber ?? student.User.PhoneNumber;
-            student.User.ProfileImage = model.ProfileImage != null ? await _fileUpload.UploadPicAsync(model.ProfileImage) : student.User.ProfileImage;
+            student.User.ProfileImage = model.ProfileImage;
             await _studentRepository.SaveChangesAsync();
             return new BaseResponse { Message = "Sussessfully Updated", Success = true, };
         }
@@ -179,15 +190,12 @@ namespace Application.Services
             int addedCount = 0;
             int duplicateCount = 0;
             int invalidFormatCount = 0;
-            if (!isAValidFileExtension)
-            {
-                return new BaseResponse { Message = "Invalid file format. Only .xlsx and .xml files are allowed. ", Success = false };
-            }
+            if (!isAValidFileExtension) { return new BaseResponse { Message = "Invalid file format. Only .xlsx and .xml files are allowed. ", Success = false }; }
+
             var isValidHeadFormat = FileUpload.FileHeadFormat(file);
-            if (!isValidHeadFormat)
-            {
-                return new BaseResponse { Message = "The header should be in the format S/N | Class | Phone", Success = false };
-            }
+            if (!isValidHeadFormat) { return new BaseResponse { Message = "The header should be in the format S/N | Class | Phone | Department", Success = false }; }
+
+            List<Student> addedStudent = new();
             using var package = new ExcelPackage(file.OpenReadStream());
             var worksheet = package.Workbook.Worksheets[0];
             for (int row = 2; row <= worksheet.Dimension.Rows; row++)
@@ -197,16 +205,23 @@ namespace Application.Services
                     Password = new Random().Next(2116, 9089).ToString(),
                     PhoneNumber = worksheet.Cells[row, 3].Value.ToString()
                 };
-                var level = await _levelRepository.GetAsync(x => x.Name.Equals(worksheet.Cells[row, 2].Value.ToString()));
-                if (level is null) { invalidFormatCount++;  continue; }
+                var level = await _levelRepository.GetAsync(x => x.Name.ToLower().Equals(worksheet.Cells[row, 2].Value.ToString().ToLower()));
+                if (level is null) { invalidFormatCount++; continue; }
 
-                var student = new Student { LevelId = level.Id, UserId = user.Id, User = user, Level = level };
+                var department = await _departmentRepository.GetAsync(x => x.Name.ToLower().Equals(worksheet.Cells[row, 3].Value.ToString().ToLower()));
+                if (department is null) { invalidFormatCount++; continue; }
+
+                var student = new Student { LevelId = level.Id, UserId = user.Id, User = user, Level = level, DepartmentId = department.Id };
                 var studentExist = await _studentRepository.ExistsAsync(x => x.User.PhoneNumber == user.PhoneNumber && x.LevelId == level.Id);
                 if (studentExist) { duplicateCount++; continue; }
+
                 await _studentRepository.CreateAsync(student);
+                addedStudent.Add(student);
                 addedCount++;
             }
             await _studentRepository.SaveChangesAsync();
+
+            BackgroundJob.Enqueue(() => _smsservice.SendBulkySms(addedStudent, "18787897387"));
             return new BaseResponse { Message = $"{addedCount} Student added, {duplicateCount} dupliacte and {invalidFormatCount} wrong input", Success = true };
         }
     }

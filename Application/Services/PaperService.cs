@@ -29,9 +29,10 @@ namespace Application.Services
         private readonly IStaffLevelRepository _staffLevelRepository;
         private readonly IStaffSubjectRepository _staffSubjectRepository;
         private readonly IExamSubjectsRepository _examSubjectsRepository;
+        private readonly ILevelTimeTableRepository _levelTimeTableRepository;
         private readonly ISubjectTimeTableRepository _subjectTimeTableRepository;
 
-        public PaperService(IPaperRepository paperRepository, IExamRepository examRepository, ISubjectRepository subjectRepository, ILevelRepository levelRepository, IExamSubjectsRepository examSubjectsRepository, IStaffLevelRepository staffLevelRepository, IStaffSubjectRepository staffSubjectRepository, IStudentRepository studentRepository, IMailService mailService, IMapper mapper, ITimeTableRepository timeTableRepository, ISubjectTimeTableRepository subjectTimeTableRepository, IUriService uriService)
+        public PaperService(IPaperRepository paperRepository, IExamRepository examRepository, ISubjectRepository subjectRepository, ILevelRepository levelRepository, IExamSubjectsRepository examSubjectsRepository, IStaffLevelRepository staffLevelRepository, IStaffSubjectRepository staffSubjectRepository, IStudentRepository studentRepository, IMailService mailService, IMapper mapper, ITimeTableRepository timeTableRepository, ISubjectTimeTableRepository subjectTimeTableRepository, IUriService uriService, ILevelTimeTableRepository levelTimeTableRepository)
         {
             _mapper = mapper;
             _uriService = uriService;
@@ -45,8 +46,11 @@ namespace Application.Services
             _staffLevelRepository = staffLevelRepository;
             _staffSubjectRepository = staffSubjectRepository;
             _examSubjectsRepository = examSubjectsRepository;
+            _levelTimeTableRepository = levelTimeTableRepository;
             _subjectTimeTableRepository = subjectTimeTableRepository;
         }
+        // Check for time less than DateTime.Now
+        // Check if time clashes with another schedule
         public async Task<BaseResponse> Create(CreatePaperRequestModel model, Guid examId, Guid staffId, Guid timeTableId)
         {
             var exam = await _examRepository.GetAsync(x => x.Id == examId && x.IsEnded == false && x.IsDeleted == false);
@@ -58,13 +62,13 @@ namespace Application.Services
             var levels = await _staffLevelRepository.GetAsync(x => x.StaffId == staffId && x.LevelId == level.Id);
             if (levels is null) { return new BaseResponse { Message = $"Sorry you have to be a staff of {level.Name} to create paper for them", Success = false }; }
 
-            var timeTable = await _timeTableRepository.GetAsync(x => x.Id == timeTableId);
-            if (timeTable == null) { return new BaseResponse { Message = "Time Table not found", Success = false }; }
-
             var subject = await _subjectRepository.GetAsync(x => x.Name == model.SubjectName);
             if (subject is null) { return new BaseResponse { Message = "Subject not found", Success = false }; }
 
-            var timeTableExist = await _subjectTimeTableRepository.ExistsAsync(x => x.TimeTableId == timeTable.Id && x.SubjectId == subject.Id);
+            var levelTimetable = await _levelTimeTableRepository.GetAsync(x => x.TimeTableId == timeTableId && x.LevelId == level.Id);
+            if (levelTimetable == null) { return new BaseResponse { Message = $"No time table has been created for {level.Name}", Success = false}; }  
+
+            var timeTableExist = await _subjectTimeTableRepository.ExistsAsync(x => x.TimeTableId == levelTimetable.TimeTableId && x.SubjectId == subject.Id);
             if (timeTableExist) { return new BaseResponse { Message = $"{subject.Name} Subject Already Exist on TimeTable", Success = false }; }
 
             var subjects = await _staffSubjectRepository.GetAsync(x => x.StaffId == staffId && x.SubjectId == subject.Id);
@@ -117,25 +121,30 @@ namespace Application.Services
             return new BaseResponse { Message = "Paper Successfully Updated", Success = true };
         }
 
-        public async Task<Responses<PaperDto>> GetAllPapersByLevelIdAsync(PaginationFilter filter, string route, Guid levelId, Guid examId)
+        public async Task<Results<PaperDto>> GetAllPapersByLevelIdAsync(Guid levelId, Guid examId)
         {
-            var papers = await _paperRepository.GetAllPapersByLevelIdAsync(levelId, examId, filter.PageNumber, filter.PageSize);
-            if (papers.IsNullOrEmpty()) { return new Responses<PaperDto> { Message = "No paper found", Success = false }; }
+            var papers = await _paperRepository.GetAllPapersByLevelIdAsync(levelId, examId);
+            if (papers.IsNullOrEmpty()) { return new Results<PaperDto> { Message = "No paper found", Success = false }; }
 
             var papersDtoData = _mapper.Map<List<PaperDto>>(papers);
-            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var totalRecords = await _levelRepository.CountAsync();
-            var pagedReponse = PaginationHelper.CreatePagedReponse<PaperDto>(papersDtoData, validFilter, totalRecords, _uriService, route);
-            return new Responses<PaperDto> { Message = "paper successfully found", Success = true, Data = pagedReponse };
+            //var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            //var totalRecords = await _levelRepository.CountAsync();
+            //var pagedReponse = PaginationHelper.CreatePagedReponse<PaperDto>(papersDtoData, validFilter, totalRecords, _uriService, route);
+            return new Results<PaperDto> { Message = "paper successfully found", Success = true, Data = papersDtoData };
         }
 
         // Can the admin start the paper before the paper start date ???
         public async Task<BaseResponse> StartPaperAsync(Guid paperId)
         {
-            var paper = await _paperRepository.GetByIdAsync(paperId);
+            var paper = await _paperRepository.GetPaperAsync(paperId);
             if (paper is null) { return new BaseResponse { Message = "Paper not found", Success = false }; }
 
-            if (paper.StartDate > DateTime.Now) { return new BaseResponse { Message = $"Exam Paper is scheduled for Date: {paper.StartDate.ToLongDateString()} Time: {paper.StartDate.ToLongTimeString()}", Success = false }; }
+            if (paper.PaperStatus == PaperStatus.Ended || paper.Exam.IsEnded) { return new BaseResponse { Success = false, Message = "Paper has already ended" }; }
+
+            //if (paper.StartDate > DateTime.Now) { return new BaseResponse { Message = $"Exam Paper is scheduled for Date: {paper.StartDate.ToLongDateString()} Time: {paper.StartDate.ToLongTimeString()}", Success = false }; }
+
+            var onGoingPapers = await _paperRepository.GetAllAsync(x => x.PaperStatus == PaperStatus.Started && x.Level == paper.Level && x.Subject.Department == paper.Subject.Department);
+            if (!onGoingPapers.IsNullOrEmpty()) { return new BaseResponse { Message = $"A {paper.Subject.Department.Name} Paper for {paper.Level.Name} is current ongoing ", Success=false }; }
 
             var students = await _studentRepository.GetStudentsByLevelIdAsync(paper.LevelId);
             if (students.IsNullOrEmpty()) { return new BaseResponse { Message = "No Student found to take this paper", Success = false }; }
@@ -163,8 +172,8 @@ namespace Application.Services
             var paper = await _paperRepository.GetAsync(x => x.Id == paperId);
             if (paper is null) { return new BaseResponse { Message = "Paper not found", Success = false }; }
 
-            if (paper.PaperStatus != PaperStatus.Started) 
-                { return new BaseResponse { Message = "Exam paper has to start", Success = false }; }
+            if (paper.PaperStatus != PaperStatus.Started)
+            { return new BaseResponse { Message = "Exam paper has to start", Success = false }; }
 
             paper.PaperStatus = PaperStatus.Ended;
             await _paperRepository.SaveChangesAsync();

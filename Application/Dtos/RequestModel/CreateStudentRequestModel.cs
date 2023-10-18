@@ -8,5 +8,6 @@ namespace Application.Dtos.RequestModel
         [Required]
         public string PhoneNumber { get; set; } = default!;
         public string LevelName { get; set; } = default!;
+        public Guid DepartmentId { get; set; }
     }
 }

@@ -32,24 +32,24 @@ namespace Application.Services
             _levelRepository = levelRepository;
             _uriService = uriService;
         }
-        public async Task<Responses<SubjectTimeTableDto>> GetLevelTimeTableAsync(PaginationFilter filter, string route, Guid levelId, Term term, string seasion)
+        public async Task<Response<LevelTimeTableDto>> GetLevelTimeTableAsync(Guid levelId, Term term, string seasion)
         {
             var level = await _levelRepository.GetAsync(x => x.Id == levelId);
-            if (level == null) { return new Responses<SubjectTimeTableDto> { Message = "Level not found", Success = false }; }
+            if (level == null) { return new Response<LevelTimeTableDto> { Message = "Level not found", Success = false }; }
 
             var timeTable = await _levelTimeTableRepository.GetAsync(levelId,term,seasion);
-            if (timeTable is null) { return new Responses<SubjectTimeTableDto> { Message = string.Empty, Success = false }; }
+            if (timeTable is null) { return new Response<LevelTimeTableDto> { Message = string.Empty, Success = false }; }
 
-            var subjectTmeTable = await _subjectTimeTableRepository.GetSubjectTimeTableAsync(timeTable.TimeTableId, filter.PageNumber, filter.PageSize);
+            var subjectTmeTable = await _subjectTimeTableRepository.GetSubjectTimeTableAsync(timeTable.TimeTableId);
             var subjectTmeTableData = _mapper.Map<IEnumerable<SubjectTimeTableDto>>(subjectTmeTable);
             var levelTimeTableData = _mapper.Map<LevelTimeTableDto>(timeTable);
             levelTimeTableData.TimeTableSubject = subjectTmeTableData;
 
-            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var totalRecords = await _levelRepository.CountAsync();
-            var pagedReponse = PaginationHelper.CreatePagedReponse<SubjectTimeTableDto>(levelTimeTableData.TimeTableSubject.ToList(), validFilter, totalRecords, _uriService, route);
+            //var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            //var totalRecords = await _levelRepository.CountAsync();
+            //var pagedReponse = PaginationHelper.CreatePagedReponse<SubjectTimeTableDto>(levelTimeTableData.TimeTableSubject.ToList(), validFilter, totalRecords, _uriService, route);
 
-            return new Responses<SubjectTimeTableDto> { Message = $"Time Table for {level.Name} {term} {seasion} successfully retrieved", Success = true, Data = pagedReponse };
+            return new Response<LevelTimeTableDto> { Message = $"Time Table for {level.Name} {term} {seasion} successfully retrieved", Success = true, Data = levelTimeTableData };
         }
     }
 }
