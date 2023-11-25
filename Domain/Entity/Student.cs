@@ -16,7 +16,7 @@ namespace Domain.Entity
         public Department Department { get; set; }
         public Guid LevelId { get; set; }
         public Level Level { get; set; }
-        public IEnumerable<Payment> Payment { get; set; }
+        public IEnumerable<PaymentRequest> Payment { get; set; }
         public IEnumerable<StudentPaper> StudentPaper { get; set; } = new List<StudentPaper>();
     }
 }

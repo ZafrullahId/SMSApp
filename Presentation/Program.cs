@@ -294,7 +294,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Persistence.Auth;
 using Persistence.Context;
+using Persistence.File;
 using Persistence.Mail;
+using Persistence.Payment;
 using Persistence.Repositories;
 using Persistence.SMS;
 
@@ -379,12 +381,16 @@ builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMailService, MailService>();
+builder.Services.AddScoped<IPaystackService, PaystackService>();
+builder.Services.AddScoped<IPaymentRequestService, PaymentRequestService>();
+builder.Services.AddScoped<IPdfGeneratorService, PdfGeneratorService>();
 builder.Services.AddScoped<ISMSService, SMSService>();
 builder.Services.AddScoped<ITimeTableService, TimeTableService>();
 builder.Services.AddScoped<IFileUpload, FileUpload>();
 builder.Services.AddScoped<ISubjectTimeTableService, SubjectTimeTableService>();
 builder.Services.AddScoped<ILevelTimeTableService, LevelTimeTableService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddSingleton<HttpClient>();
 #endregion
 
 #region|Repositories

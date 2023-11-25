@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence.Context;
 
@@ -11,9 +12,10 @@ using Persistence.Context;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(SMSAppContext))]
-    partial class SMSAppContextModelSnapshot : ModelSnapshot
+    [Migration("20231021115617_newmig")]
+    partial class newmig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,26 +85,6 @@ namespace Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Departments");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("95a20fe8-f023-404b-ab5c-95acfcce298f"),
-                            Description = "Science",
-                            Name = "Science"
-                        },
-                        new
-                        {
-                            Id = new Guid("69d0fb70-9302-4a1c-858f-b39bb1213e99"),
-                            Description = "Att",
-                            Name = "Art"
-                        },
-                        new
-                        {
-                            Id = new Guid("da21c254-486f-4976-aad5-5d51fd22898f"),
-                            Description = "Commercial",
-                            Name = "Commercial"
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entity.Exam", b =>
@@ -231,38 +213,38 @@ namespace Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("bb5e0e33-a105-400d-99fe-b6e5f3888982"),
+                            Id = new Guid("9eb31e09-2d22-4f8a-bcd1-60acb165aaa2"),
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(6084),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(6085),
+                            CreatedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(1007),
+                            DeletedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(1008),
                             Description = "Oga pata pata",
                             IsDeleted = false,
                             LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(6085),
+                            LastModifiedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(1007),
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("6c3e84ab-ec64-4e3a-ba37-3e6be992b996"),
+                            Id = new Guid("fac0b71e-fee0-4653-afbe-140346cae58a"),
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7416),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7418),
+                            CreatedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2584),
+                            DeletedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2587),
                             Description = "Omo ishe",
                             IsDeleted = false,
                             LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7418),
+                            LastModifiedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2586),
                             Name = "Teacher"
                         },
                         new
                         {
-                            Id = new Guid("c6858114-70ab-4479-b901-3addb6bf1484"),
+                            Id = new Guid("30e290d8-394f-46db-8e1b-28601e4404ce"),
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7439),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7440),
+                            CreatedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2597),
+                            DeletedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2598),
                             Description = "Student",
                             IsDeleted = false,
                             LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7439),
+                            LastModifiedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2598),
                             Name = "Student"
                         });
                 });
@@ -294,9 +276,6 @@ namespace Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsProfileComplete")
-                        .HasColumnType("bit");
-
                     b.Property<int>("LastModifiedBy")
                         .HasColumnType("int");
 
@@ -323,16 +302,15 @@ namespace Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("26746986-5393-47d6-9667-78c68362158a"),
+                            Id = new Guid("71eb9eee-f36e-455d-a284-ef2925204468"),
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(6027),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(6040),
+                            CreatedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(946),
+                            DeletedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(965),
                             Email = "Oga@Admin",
                             FullName = "Oga@Admin",
                             IsDeleted = false,
-                            IsProfileComplete = false,
                             LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(6040),
+                            LastModifiedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(965),
                             Password = "password",
                             PhoneNumber = "1234567890"
                         });
@@ -382,15 +360,15 @@ namespace Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("7a945f64-8554-40eb-8523-edb5bd55325d"),
+                            Id = new Guid("dd459ae1-54d6-4151-885c-5e36f01817e9"),
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7555),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7556),
+                            CreatedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2774),
+                            DeletedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2775),
                             IsDeleted = false,
                             LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7556),
-                            RoleId = new Guid("bb5e0e33-a105-400d-99fe-b6e5f3888982"),
-                            UserId = new Guid("26746986-5393-47d6-9667-78c68362158a")
+                            LastModifiedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2774),
+                            RoleId = new Guid("9eb31e09-2d22-4f8a-bcd1-60acb165aaa2"),
+                            UserId = new Guid("71eb9eee-f36e-455d-a284-ef2925204468")
                         });
                 });
 
@@ -436,38 +414,38 @@ namespace Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("0c821195-f977-40a0-ae38-d5618dbfcae8"),
+                            Id = new Guid("b9b6010e-2724-4262-a3c6-bb10346a712e"),
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7580),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7582),
+                            CreatedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2800),
+                            DeletedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2801),
                             Description = "SSS1",
                             IsDeleted = false,
                             LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7581),
+                            LastModifiedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2800),
                             Name = "SSS1"
                         },
                         new
                         {
-                            Id = new Guid("05f181b0-0c2d-4133-bc58-8a528e3dea4f"),
+                            Id = new Guid("da48579b-7be2-4fec-80e8-a9423c83a406"),
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7586),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7587),
+                            CreatedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2818),
+                            DeletedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2820),
                             Description = "SSS2",
                             IsDeleted = false,
                             LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7586),
+                            LastModifiedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2819),
                             Name = "SSS2"
                         },
                         new
                         {
-                            Id = new Guid("8de61166-a421-4ff3-856e-e30d55282d91"),
+                            Id = new Guid("2b0e3c35-59c5-4707-8e3a-28bbb9738595"),
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7590),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7591),
+                            CreatedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2868),
+                            DeletedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2869),
                             Description = "SSS3",
                             IsDeleted = false,
                             LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7591),
+                            LastModifiedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2869),
                             Name = "SSS3"
                         });
                 });
@@ -718,14 +696,14 @@ namespace Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("acee4ef7-9942-4fb6-9e12-2e9d6143222e"),
+                            Id = new Guid("c4609d07-7cab-4bf9-b852-2679af0fbc68"),
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7537),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7538),
+                            CreatedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2749),
+                            DeletedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2750),
                             IsDeleted = false,
                             LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7538),
-                            UserId = new Guid("26746986-5393-47d6-9667-78c68362158a")
+                            LastModifiedOn = new DateTime(2023, 10, 21, 12, 56, 16, 915, DateTimeKind.Local).AddTicks(2750),
+                            UserId = new Guid("71eb9eee-f36e-455d-a284-ef2925204468")
                         });
                 });
 
@@ -965,214 +943,6 @@ namespace Persistence.Migrations
                     b.HasIndex("DepartmentId");
 
                     b.ToTable("Subjects");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("35ec362f-8ac7-4fa3-91e9-32810779f792"),
-                            CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7627),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7628),
-                            DepartmentId = new Guid("95a20fe8-f023-404b-ab5c-95acfcce298f"),
-                            Description = "Mathematics",
-                            IsDeleted = false,
-                            LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7627),
-                            Name = "Mathematics"
-                        },
-                        new
-                        {
-                            Id = new Guid("52cec3a6-7f6f-49b2-aeb6-bf0dfe494679"),
-                            CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7637),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7638),
-                            Description = "English vocabulary",
-                            IsDeleted = false,
-                            LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7638),
-                            Name = "English"
-                        },
-                        new
-                        {
-                            Id = new Guid("901916cf-0703-48a5-9f5c-21d105f694bd"),
-                            CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7645),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7646),
-                            DepartmentId = new Guid("95a20fe8-f023-404b-ab5c-95acfcce298f"),
-                            Description = "Physics",
-                            IsDeleted = false,
-                            LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7645),
-                            Name = "Physics"
-                        },
-                        new
-                        {
-                            Id = new Guid("f498a5a1-3b06-4ced-aaac-030d33d6399c"),
-                            CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7649),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7650),
-                            DepartmentId = new Guid("95a20fe8-f023-404b-ab5c-95acfcce298f"),
-                            Description = "Chemistry",
-                            IsDeleted = false,
-                            LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7650),
-                            Name = "Chemistry"
-                        },
-                        new
-                        {
-                            Id = new Guid("36b9736f-3ece-4baa-bd55-6fbcd277ab42"),
-                            CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7654),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7655),
-                            Description = "Biology",
-                            IsDeleted = false,
-                            LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7654),
-                            Name = "Biology"
-                        },
-                        new
-                        {
-                            Id = new Guid("ce39a632-a1e9-4011-a55b-b268729ffc1c"),
-                            CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7658),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7659),
-                            DepartmentId = new Guid("95a20fe8-f023-404b-ab5c-95acfcce298f"),
-                            Description = "ICT",
-                            IsDeleted = false,
-                            LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7658),
-                            Name = "ICT"
-                        },
-                        new
-                        {
-                            Id = new Guid("40b15367-e456-471b-8d1a-3091d5fad9fe"),
-                            CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7662),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7663),
-                            DepartmentId = new Guid("95a20fe8-f023-404b-ab5c-95acfcce298f"),
-                            Description = "Further Mathematics",
-                            IsDeleted = false,
-                            LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7663),
-                            Name = "Further Mathematics"
-                        },
-                        new
-                        {
-                            Id = new Guid("b9f33710-697b-4e90-a32c-45fa7f503846"),
-                            CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7666),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7667),
-                            DepartmentId = new Guid("95a20fe8-f023-404b-ab5c-95acfcce298f"),
-                            Description = "Geography",
-                            IsDeleted = false,
-                            LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7667),
-                            Name = "Geography"
-                        },
-                        new
-                        {
-                            Id = new Guid("d375d3ac-7dec-4cb0-b46c-4d03b844978d"),
-                            CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7672),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7673),
-                            DepartmentId = new Guid("95a20fe8-f023-404b-ab5c-95acfcce298f"),
-                            Description = "Agric Science",
-                            IsDeleted = false,
-                            LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7673),
-                            Name = "Agric Science"
-                        },
-                        new
-                        {
-                            Id = new Guid("7e4d0e6f-232b-46c1-b79b-d3b9fec00117"),
-                            CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7730),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7731),
-                            DepartmentId = new Guid("da21c254-486f-4976-aad5-5d51fd22898f"),
-                            Description = "Commerce",
-                            IsDeleted = false,
-                            LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7731),
-                            Name = "Commerce"
-                        },
-                        new
-                        {
-                            Id = new Guid("2e3b756f-2aeb-4238-b8a1-f9f7aeaf09dd"),
-                            CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7739),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7740),
-                            DepartmentId = new Guid("da21c254-486f-4976-aad5-5d51fd22898f"),
-                            Description = "Account",
-                            IsDeleted = false,
-                            LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7739),
-                            Name = "Account"
-                        },
-                        new
-                        {
-                            Id = new Guid("ed11911c-880d-4543-bd98-eee7c4f18ed8"),
-                            CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7743),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7744),
-                            DepartmentId = new Guid("69d0fb70-9302-4a1c-858f-b39bb1213e99"),
-                            Description = "Government",
-                            IsDeleted = false,
-                            LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7744),
-                            Name = "Government"
-                        },
-                        new
-                        {
-                            Id = new Guid("2940bd03-b2cf-497c-b815-3c0b520cab84"),
-                            CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7748),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7749),
-                            DepartmentId = new Guid("69d0fb70-9302-4a1c-858f-b39bb1213e99"),
-                            Description = "History",
-                            IsDeleted = false,
-                            LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7748),
-                            Name = "History"
-                        },
-                        new
-                        {
-                            Id = new Guid("21a3edc5-ba01-4ddc-a24c-66f4a34788f4"),
-                            CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7752),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7753),
-                            DepartmentId = new Guid("69d0fb70-9302-4a1c-858f-b39bb1213e99"),
-                            Description = "CRS",
-                            IsDeleted = false,
-                            LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7753),
-                            Name = "CRS"
-                        },
-                        new
-                        {
-                            Id = new Guid("90266ade-6e8c-41c9-9e45-a5fa234c17a7"),
-                            CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7757),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7758),
-                            DepartmentId = new Guid("69d0fb70-9302-4a1c-858f-b39bb1213e99"),
-                            Description = "IRS",
-                            IsDeleted = false,
-                            LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7758),
-                            Name = "IRS"
-                        },
-                        new
-                        {
-                            Id = new Guid("aec3de86-6db1-4308-8da2-a4267228df03"),
-                            CreatedBy = 0,
-                            CreatedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7762),
-                            DeletedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7763),
-                            DepartmentId = new Guid("69d0fb70-9302-4a1c-858f-b39bb1213e99"),
-                            Description = "Literature-in-English",
-                            IsDeleted = false,
-                            LastModifiedBy = 0,
-                            LastModifiedOn = new DateTime(2023, 11, 5, 15, 20, 53, 450, DateTimeKind.Local).AddTicks(7762),
-                            Name = "Literature-in-English"
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entity.SubjectTimeTable", b =>

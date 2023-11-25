@@ -10,7 +10,7 @@ namespace Application.Abstractions.Services
     {
         Task<Results<StudentDto>> GetAllStudentsAsync();
         Task<BaseResponse> UploadStudentListFileAsync(IFormFile file);
-        Task<Response<StudentDto>> GetStudentByUserIdAsync(Guid userId);
+        Task<Response<Token>> GetStudentByUserIdAsync(Guid userId);
         Task<BaseResponse> CreateAsync(CreateStudentRequestModel model, Guid staffUserId);
         Task<BaseResponse> UpdateStudentAsync(Guid userId, UpdateStudentRequestModel model);
     }

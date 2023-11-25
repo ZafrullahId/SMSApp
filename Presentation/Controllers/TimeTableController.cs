@@ -50,7 +50,7 @@ namespace Host.Controllers
         public async Task<IActionResult> GeTimeTableByYearAndTermAsync(string seasion, Term term)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var timeTable = await _subjectTimeTableService.GetTimeTableByYearAndTerm(System.Net.WebUtility.UrlDecode(seasion), term);
+            var timeTable = await _subjectTimeTableService.GetTimeTableBySessionAndTerm(System.Net.WebUtility.UrlDecode(seasion), term);
             if (timeTable.Success) return Ok(timeTable);
             return BadRequest(timeTable);
         }
@@ -59,6 +59,14 @@ namespace Host.Controllers
         public async Task<IActionResult> GetLevelTimeTableAsync(Guid levelId, Term term, string seasion)
         {
             var timeTable = await _levelTimeTableService.GetLevelTimeTableAsync(levelId, term, System.Net.WebUtility.UrlDecode(seasion));
+            if (timeTable.Success) return Ok(timeTable);
+            return BadRequest(timeTable);
+        }
+        [HttpGet("Pdf/{levelId}/{term}/{seasion}")]
+        [OpenApiOperation("Download a level TimeTable By LevelId,Term and Season ", "")]
+        public async Task<IActionResult> DownloadLevelTimeTableAsync(Guid levelId, Term term, string seasion)
+        {
+            var timeTable = await _timeTableService.DownloadTimeTable(levelId, term, System.Net.WebUtility.UrlDecode(seasion));
             if (timeTable.Success) return Ok(timeTable);
             return BadRequest(timeTable);
         }

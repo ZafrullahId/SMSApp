@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Application.Abstractions.Repositories;
 using Domain.Entity;
+using Domain.Entity.Identity;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
 using Persistence.Repositories;
@@ -21,7 +22,7 @@ namespace Persistence.Repositories
             .Include(x => x.Level)
             .Include(x => x.Department)
             .SingleOrDefaultAsync();
-
+        
         public async Task<List<Student>> GetStudentsByLevelIdAsync(Guid levelId) => await _Context.Students
             .Where(z => z.LevelId == levelId)
             .Include(x => x.User).ToListAsync();

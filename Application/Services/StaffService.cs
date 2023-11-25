@@ -44,6 +44,7 @@ namespace Application.Services
             
             var path = await _fileUpload.UploadPicAsync(model.ProfileUpload);
             var user = _mapper.Map<User>(model);
+            user.IsProfileComplete = true;
             user.ProfileImage = path;
             await _userRepository.CreateAsync(user);
 
@@ -115,6 +116,7 @@ namespace Application.Services
             staff.User.Password = model.Password ?? staff.User.Password;
             staff.User.PhoneNumber = model.PhoneNumber ?? staff.User.PhoneNumber;
             staff.User.ProfileImage = model.ProfileImage ?? staff.User.ProfileImage;
+            staff.User.IsProfileComplete = true;
             await _staffRepository.UpdateAsync(staff);
             return new BaseResponse { Message = "Successfully Updated", Success = true, };
         }

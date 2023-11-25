@@ -29,39 +29,48 @@ namespace Application.Services
 
         public async Task<Response<LoginDto>> LoginAsync(LoginRequestModel model)
         {
-            var user = await _userRepository.LoginAsync(x => x.User.Email == model.Email && x.User.Password == model.Password);
-            if (user == null) { return new Response<LoginDto> { Message = "Invalid Credentials", Success = false, }; }
+            var auth = await _userRepository.LoginAsync(x => x.User.Email == model.Email && x.User.Password == model.Password);
+            if (auth == null) { return new Response<LoginDto> { Message = "Invalid Credentials", Success = false, }; }
 
-            var roles = await _userRepository.GetUserRolesAsync(x => x.UserId == user.UserId);
-            if (roles.IsNullOrEmpty()) { return new Response<LoginDto> { Message = "No role found for this user", Success = false, }; }
+            //var roles = await _userRepository.GetUserRolesAsync(x => x.UserId == auth.UserId);
+            //if (roles.IsNullOrEmpty()) { return new Response<LoginDto> { Message = "No role found for this user", Success = false, }; }
 
-            var roleDtos = _mapper.Map<List<RoleDto>>(roles);
+            var roleDtos = _mapper.Map<RoleDto>(auth.Role);
             var userDto = new UserDto
             {
-                Id = user.UserId,
-                Roles = roleDtos
+                Id = auth.UserId,
+                Role = roleDtos,
+                Email = auth.User.Email,
+                FullName = auth.User.FullName,
+                ProfileImage = auth.User.ProfileImage,
+                Password = auth.User.Password,
+                PhoneNumber = auth.User.PhoneNumber,
             };
             generatedToken = _tokenService.GenerateToken(_config["Jwt:Key"].ToString(), _config["Jwt:Issuer"].ToString(), userDto);
             return new Response<LoginDto> { Message = "Valid Credential", Success = true, Data = new LoginDto { Token = generatedToken, Roles = 
-                roleDtos.Select(x => x.Name).ToList() } };
+                userDto.Role.Name } };
         }
         public async Task<Response<LoginDto>> LoginAsync(StudentLoginRequestModel model)
         {
             var student = await _studentRepository.GetAsync(x => x.AdmissionNo == model.AdmissionNo && x.User.Password == model.Password);
             if (student == null) { return new Response<LoginDto> { Message = "Invalid Credentials", Success = false, }; }
 
-            var roles = await _userRepository.GetUserRolesAsync(x => x.UserId == student.UserId);
-            if (roles.IsNullOrEmpty()) { return new Response<LoginDto> { Message = "No role found for this user", Success = false, }; }
+            var userRoles = await _userRepository.LoginAsync(x => x.UserId == student.UserId);
+            if (userRoles is null) { return new Response<LoginDto> { Message = "No role found for this user", Success = false, }; }
 
-            var roleDtos = _mapper.Map<List<RoleDto>>(roles);
-            var userDto = new UserDto
+            var roleDtos = _mapper.Map<RoleDto>(userRoles.Role);
+            var userDto = _mapper.Map<UserDto>(userRoles.User);
+            userDto.Role = roleDtos;
+            if (userDto.IsProfileComplete)
             {
-                Id = student.UserId,
-                Roles = roleDtos
-            };
-            generatedToken = _tokenService.GenerateToken(_config["Jwt:Key"].ToString(), _config["Jwt:Issuer"].ToString(), userDto);
+                generatedToken = _tokenService.GenerateToken(_config["Jwt:Key"].ToString(), _config["Jwt:Issuer"].ToString(), userDto);
+            }
+            else
+            {
+                generatedToken = _tokenService.GenerateNotCompletedProfileToken(_config["Jwt:Key"].ToString(), _config["Jwt:Issuer"].ToString(), userDto);
+            }
             return new Response<LoginDto> { Message = "Valid Credential", Success = true, Data = new LoginDto { Token = generatedToken, Roles = 
-                roleDtos.Select(x => x.Name).ToList() } };
+                userDto.Role.Name} };
         }
     }
 }

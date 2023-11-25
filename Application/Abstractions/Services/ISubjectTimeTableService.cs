@@ -14,6 +14,6 @@ namespace Application.Abstractions.Services
     public interface ISubjectTimeTableService
     {
         Task<Results<SubjectTimeTableDto>> GetTimeTableSubjectsAsync(Guid timeTableId);
-        Task<Results<IEnumerable<SubjectTimeTableDto>>> GetTimeTableByYearAndTerm(string seasion, Term term);
+        Task<Results<IEnumerable<SubjectTimeTableDto>>> GetTimeTableBySessionAndTerm(string seasion, Term term);
     }
 }

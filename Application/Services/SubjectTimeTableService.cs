@@ -68,7 +68,7 @@ namespace Application.Services
             return new Results<SubjectTimeTableDto> { Message = "Time Table Subjects Successfully retrieved", Success = true, Data = subjectTimeTableDtoData };
         }
 
-        public async Task<Results<IEnumerable<SubjectTimeTableDto>>> GetTimeTableByYearAndTerm(string seasion, Term term)
+        public async Task<Results<IEnumerable<SubjectTimeTableDto>>> GetTimeTableBySessionAndTerm(string seasion, Term term)
         {
             List<IEnumerable<SubjectTimeTableDto>> subjectTimeTableDtos = new();
             var levels = await _levelRepository.GetAllAsync();

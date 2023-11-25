@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entity
 {
-    public class Payment : AuditableEntity
+    public class PaymentRequest : AuditableEntity
     {
         public int Amount { get; set; }
         public Guid StudentId { get; set; }

@@ -9,8 +9,10 @@ namespace Application.Dtos.RequestModel
         public string Email { get; set; }
         [Required]
         public string Password { get; set; }
+        [Required]
         public string FullName { get; set; }
         public IFormFile? ProfileUpload { get; set; }
+        [Required]
         public string PhoneNumber { get; set; }
     }
 }

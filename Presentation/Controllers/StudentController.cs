@@ -18,7 +18,7 @@ namespace Host.Controllers
             _studentService = studentService;
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Teacher")]
         [OpenApiOperation("Create Student", "")]
         public async Task<IActionResult> CreateAsync([FromForm]CreateStudentRequestModel model)
         {

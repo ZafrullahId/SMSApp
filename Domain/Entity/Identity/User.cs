@@ -12,6 +12,7 @@ namespace Domain.Entity.Identity
         public string? FullName { get; set; }
         public string? ProfileImage { get; set; }
         public string? PhoneNumber { get; set; }    
+        public bool IsProfileComplete { get; set; }
         public Staff Staff { get; set; }
         public Student Student { get; set; }
         public List<UserRole> UserRoles { get; set; } = new List<UserRole>();
