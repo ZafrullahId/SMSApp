@@ -10,15 +10,15 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Services
 {
-    public class UserService : IUserService
+    public class AuthService : IUserService
     {
         private readonly IMapper _mapper;
         private string generatedToken = null;
         private readonly IConfiguration _config;
         private readonly IUserRepository _userRepository;
         private readonly IJWTAuthenticationManager _tokenService;
-        private readonly IStudentRepository  _studentRepository;
-        public UserService(IUserRepository userRepository, IConfiguration config, IJWTAuthenticationManager tokenService, IMapper mapper, IStudentRepository studentRepository)
+        private readonly IStudentRepository _studentRepository;
+        public AuthService(IUserRepository userRepository, IConfiguration config, IJWTAuthenticationManager tokenService, IMapper mapper, IStudentRepository studentRepository)
         {
             _mapper = mapper;
             _config = config;
@@ -47,8 +47,17 @@ namespace Application.Services
                 PhoneNumber = auth.User.PhoneNumber,
             };
             generatedToken = _tokenService.GenerateToken(_config["Jwt:Key"].ToString(), _config["Jwt:Issuer"].ToString(), userDto);
-            return new Response<LoginDto> { Message = "Valid Credential", Success = true, Data = new LoginDto { Token = generatedToken, Roles = 
-                userDto.Role.Name } };
+            return new Response<LoginDto>
+            {
+                Message = "Valid Credential",
+                Success = true,
+                Data = new LoginDto
+                {
+                    Token = generatedToken,
+                    Roles =
+                userDto.Role.Name
+                }
+            };
         }
         public async Task<Response<LoginDto>> LoginAsync(StudentLoginRequestModel model)
         {
@@ -69,8 +78,27 @@ namespace Application.Services
             {
                 generatedToken = _tokenService.GenerateNotCompletedProfileToken(_config["Jwt:Key"].ToString(), _config["Jwt:Issuer"].ToString(), userDto);
             }
-            return new Response<LoginDto> { Message = "Valid Credential", Success = true, Data = new LoginDto { Token = generatedToken, Roles = 
-                userDto.Role.Name} };
+            return new Response<LoginDto>
+            {
+                Message = "Valid Credential",
+                Success = true,
+                Data = new LoginDto
+                {
+                    Token = generatedToken,
+                    Roles =
+                userDto.Role.Name
+                }
+            };
+        }
+        public async Task<BaseResponse> UpdateAuthCredentialsAsync(UpdateAuthCredentialsRequestModel model, Guid userId)
+        {
+            var user = await _userRepository.GetAsync(userId);
+            if (user == null) { return new Response<BaseResponse> { Message = "You may need to loggin again", Success = false }; }
+            if (user.Password != model.CurrentPassword)
+                return new BaseResponse { Message = "Current Password not correct" };
+            user.Password = model.NewPassword;
+            await _userRepository.SaveChangesAsync();
+            return new Response<BaseResponse> { Message = "Credentials Successfully Updated", Success = true };
         }
     }
 }

@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Application.Dtos.RequestModel
 {
     public class LoginRequestModel
@@ -9,5 +11,10 @@ namespace Application.Dtos.RequestModel
     {
         public string AdmissionNo { get; set; } = default!;
         public string Password { get; set; } = default!;
+    }
+    public class UpdateAuthCredentialsRequestModel
+    {
+        public string NewPassword { get; set; } = default!;
+        public string CurrentPassword { get; set; } = default!;
     }
 }

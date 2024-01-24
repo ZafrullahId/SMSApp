@@ -113,7 +113,6 @@ namespace Application.Services
             
             staff.User.FullName = model.FullName ?? staff.User.FullName;
             staff.User.Email = model.Email ?? staff.User.Email;
-            staff.User.Password = model.Password ?? staff.User.Password;
             staff.User.PhoneNumber = model.PhoneNumber ?? staff.User.PhoneNumber;
             staff.User.ProfileImage = model.ProfileImage ?? staff.User.ProfileImage;
             staff.User.IsProfileComplete = true;

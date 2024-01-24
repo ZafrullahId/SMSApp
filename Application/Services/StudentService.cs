@@ -168,7 +168,6 @@ namespace Application.Services
 
             student.NextOfKin = model.NextOfKin ?? student.NextOfKin;
             student.DateOfBirth = model.DateOfBirth ?? student.DateOfBirth;
-            student.User.Password = model.Password ?? student.User.Password;
             student.User.Email = model.Email ?? student.User.Email;
             student.User.FullName = model.FullName ?? student.User.FullName;
             student.User.PhoneNumber = model.PhoneNumber ?? student.User.PhoneNumber;

@@ -8,5 +8,6 @@ namespace Application.Abstractions.Services
     {
         Task<Response<LoginDto>> LoginAsync(LoginRequestModel model);
         Task<Response<LoginDto>> LoginAsync(StudentLoginRequestModel model);
+        Task<BaseResponse> UpdateAuthCredentialsAsync(UpdateAuthCredentialsRequestModel model, Guid userId);
     }
 }

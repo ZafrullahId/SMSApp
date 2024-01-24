@@ -54,7 +54,7 @@ namespace Host.Controllers
             return paper.Success ? Ok(paper) : BadRequest(paper);
         }
 
-        [HttpPut("{paperId}/startstatus"), Authorize(Roles = "Teacher,Admin")]
+        [HttpPut("{paperId}/start"), Authorize(Roles = "Teacher,Admin")]
         [OpenApiOperation("Start a paper","")]
         public async Task<IActionResult> StartPaper(Guid paperId)
         {
@@ -62,7 +62,7 @@ namespace Host.Controllers
             return paper.Success ? Ok(paper) : BadRequest(paper);
         }
 
-        [HttpPut("{paperId}/endstatus"), Authorize(Roles = "Teacher,Admin")]
+        [HttpPut("{paperId}/end"), Authorize(Roles = "Teacher,Admin")]
         [OpenApiOperation("End a Paper  ", "")]
         public async Task<IActionResult> EndPaper(Guid paperId)
         {

@@ -35,7 +35,8 @@ namespace Application.Services
             }
 
             var paper = await _paperRepository.GetAsync(x => x.Id == paperId && x.PaperStatus == PaperStatus.Pending && x.IsDeleted == false);
-            if (paper == null) { return new BaseResponse { Message = "Subject not found", Success = false }; }
+            if (paper == null) { return new BaseResponse { Message = "Paper not found", Success = false }; }
+            // Check if paper has ended, terminated or started
 
             string imagePath = null;
             if (model.QuestionIMage != null)

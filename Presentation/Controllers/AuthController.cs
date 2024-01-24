@@ -7,7 +7,7 @@ using NSwag.Annotations;
 
 namespace Host.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     [ApiController]
     public class AuthController : ControllerBase
     {
@@ -19,7 +19,7 @@ namespace Host.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("Access")]
+        [HttpPost("access")]
         [OpenApiOperation("Gets access to send request", "Gets access to send request")]
         public async Task<ActionResult<LoginDto>> LoginAsync([FromBody]LoginRequestModel model)
         {
@@ -33,6 +33,13 @@ namespace Host.Controllers
         {
             var logging = await _userService.LoginAsync(model);
             return logging.Success ? Ok(logging) : BadRequest(logging);
+        }
+        [Authorize]
+        [HttpPatch("update/{Id}")]
+        public async Task<IActionResult> UpdateAuthCredentials([FromBody] UpdateAuthCredentialsRequestModel model, Guid Id)
+        {
+            var passwordChange = await _userService.UpdateAuthCredentialsAsync(model, Id);
+            return Ok(passwordChange);
         }
     }
 }

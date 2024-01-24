@@ -20,6 +20,11 @@ namespace Application.Services
             var response = await _paystackService.InitializePayment(email, amount);
             return response;
         }
+        public async Task<string> PaymentReferenceAsync(string referenceId)
+        {
+            var response = await _paystackService.PaymentReference(referenceId);
+            return response;
+        }
 
     }
 }
