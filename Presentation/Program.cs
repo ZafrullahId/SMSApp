@@ -308,14 +308,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddHangfire(config =>
-    config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-    .UseSimpleAssemblyNameTypeSerializer()
-    .UseDefaultTypeSerializer()
-    //.UseDashboardStylesheet(Assembly.GetExecutingAssembly(), "sms")
-    .UseMemoryStorage());
 
+builder.Services.AddHangfire(x =>  x.UseSqlServerStorage(builder.Configuration.GetConnectionString("SMSAppConnection")));
 builder.Services.AddHangfireServer();
+
 
 builder.Services.AddDbContext<SMSAppContext>(options =>
     options.UseSqlServer(
@@ -367,6 +363,7 @@ builder.Services.AddSingleton<IUriService>(o =>
 });
 
 
+
 #region|Services
 builder.Services.AddScoped<IExamService, ExamService>();
 builder.Services.AddScoped<IExamSubjectsServices, ExamSubjectsServices>();
@@ -389,8 +386,10 @@ builder.Services.AddScoped<ITimeTableService, TimeTableService>();
 builder.Services.AddScoped<IFileUpload, FileUpload>();
 builder.Services.AddScoped<ISubjectTimeTableService, SubjectTimeTableService>();
 builder.Services.AddScoped<ILevelTimeTableService, LevelTimeTableService>();
+builder.Services.AddScoped<ISchoolProfileService, SchoolProfileService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddSingleton<HttpClient>();
+
 #endregion
 
 #region|Repositories
@@ -413,6 +412,7 @@ builder.Services.AddScoped<ITimeTableRepository, TimeTableRepository>();
 builder.Services.AddScoped<ILevelTimeTableRepository, LevelTimeTableRepository>();
 builder.Services.AddScoped<ISubjectTimeTableRepository, SubjectTimeTableRepository>();
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+builder.Services.AddScoped<ISchoolProfileRepository, SchoolProfileRepository>();
 #endregion
 
 
@@ -472,6 +472,8 @@ app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
+app.UseHangfireDashboard();
+
 app.UseRouting();
 
 app.UseCors("SMSApp");
@@ -484,6 +486,5 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.MapControllers();
 
-app.UseHangfireDashboard();
 
 app.Run();

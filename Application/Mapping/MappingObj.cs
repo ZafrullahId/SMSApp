@@ -12,6 +12,7 @@ namespace Application.Mapping
         {
             CreateMap<Choice, OptionDto>();
             CreateMap<Exam, ExamDto>();
+            CreateMap<SchoolProfile, SchoolProfileDto>();
             CreateMap<ExamSubjects, ExamSubjectsDto>()
                 .ForMember(x => x.ExamDto, y => y.MapFrom(z => z.Exam))
                 .ForMember(x => x.SubjectDtos, y => y.MapFrom(z => new List<SubjectDto>()));

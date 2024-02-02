@@ -69,26 +69,31 @@ namespace Persistence.Context
                new Subject { Name = "IRS", Description = "IRS", DepartmentId = department2.Id },
                new Subject { Name = "Literature-in-English", Description = "Literature-in-English", DepartmentId = department2.Id }
             );
+            modelBuilder.Entity<SchoolProfile>()
+                .HasData(
+                new SchoolProfile { SchoolFee = 200000.00m, Session = "2022/2023", Term = Domain.Enum.Term.FirstTerm }
+                );
         }
+        public DbSet<Exam> Exams { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<UserRole> UserRoles { get; set; }
-        public DbSet<Exam> Exams { get; set; }
-        public DbSet<Choice> Options { get; set; }
-        public DbSet<Question> Questions { get; set; }
-        public DbSet<Staff> Staffs { get; set; }
-        public DbSet<Student> Students { get; set; }
-        public DbSet<ExamSubjects> SubjectExams { get; set; }
-        public DbSet<Subject> Subjects { get; set; }
         public DbSet<Paper> Papers { get; set; }
-        public DbSet<StudentPaper> StudentPaper { get; set; }
-        public DbSet<StaffsSubjects> StaffsSubjects { get; set; }
-        public DbSet<StaffsLevels> StaffsLevels { get; set; }
-        public DbSet<TimeTable> TimeTables { get; set; }
-        public DbSet<SubjectTimeTable> SubjectTimeTables { get; set; }
-        public DbSet<LevelTimeTable> LevelTimeTables { get; set; }
         public DbSet<Level> Levels { get; set; }
-        public DbSet<Department> Departments { get; set; }
+        public DbSet<Staff> Staffs { get; set; }
+        public DbSet<Choice> Options { get; set; }
+        public DbSet<Subject> Subjects { get; set; }
+        public DbSet<Student> Students { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<Question> Questions { get; set; }
+        public DbSet<TimeTable> TimeTables { get; set; }
         public DbSet<PaymentRequest> Payment { get; set; }
+        public DbSet<Department> Departments { get; set; }
+        public DbSet<StaffsLevels> StaffsLevels { get; set; }
+        public DbSet<StudentPaper> StudentPaper { get; set; }
+        public DbSet<ExamSubjects> SubjectExams { get; set; }
+        public DbSet<SchoolProfile> SchoolProfiles { get; set; }
+        public DbSet<StaffsSubjects> StaffsSubjects { get; set; }
+        public DbSet<LevelTimeTable> LevelTimeTables { get; set; }
+        public DbSet<SubjectTimeTable> SubjectTimeTables { get; set; }
     }
 }

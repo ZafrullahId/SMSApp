@@ -35,7 +35,7 @@ namespace Persistence.Auth
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
 
         }
-        public string GenerateToken(string key, string issuer, StudentDto student)
+        public string GenerateToken(string key, string issuer, StudentDto student, SchoolProfileDto schoolProfile)
         {
             _ = new JwtSecurityTokenHandler();
 
@@ -53,6 +53,9 @@ namespace Persistence.Auth
                 new Claim(ApplicationConstant.NextOfKinClaimsType, student.NextOfKin ?? ""), 
                 new Claim(ApplicationConstant.LevelClaimsType, student.Level.Name ?? ""), 
                 new Claim(ApplicationConstant.LevelIdClaimsType, student.Level.Id.ToString() ?? ""), 
+                new Claim(ApplicationConstant.CurrentSession, schoolProfile.Session ?? ""), 
+                new Claim(ApplicationConstant.CurrentTerm, schoolProfile.Term.ToString() ?? ""),
+                new Claim(ApplicationConstant.IsProfileComplete, "true")
 
             };
 
@@ -63,7 +66,7 @@ namespace Persistence.Auth
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
 
         }
-        public string GenerateNotCompletedProfileToken(string key, string issuer, UserDto user)
+        public string GenerateNotCompletedProfileToken(string key, string issuer, UserDto user, StudentDto student)
         {
             _ = new JwtSecurityTokenHandler();
 
@@ -72,6 +75,10 @@ namespace Persistence.Auth
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
                 new Claim(ClaimTypes.Role, user.Role.Name), 
+                new Claim(ApplicationConstant.IsProfileComplete, "false"),
+                new Claim(ApplicationConstant.AdmissionNoClaimsType, student.AdmissionNo),
+                new Claim(ApplicationConstant.DepartmentClaimsType, student.Department.Name),
+                new Claim(ApplicationConstant.LevelClaimsType, student.Level.Name),
             };
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));

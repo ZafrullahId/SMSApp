@@ -18,7 +18,7 @@ namespace Host.Controllers
             _studentService = studentService;
         }
 
-        [HttpPost, Authorize(Roles = "Teacher")]
+        [HttpPost]
         [OpenApiOperation("Create Student", "")]
         public async Task<IActionResult> CreateAsync([FromForm]CreateStudentRequestModel model)
         {
@@ -64,7 +64,7 @@ namespace Host.Controllers
             return student.Success ? Ok(student) : BadRequest(student);
         }
 
-        [HttpPost("studentfilelist"), Authorize(Roles = "Admin")]
+        [HttpPost("uploadfile"), Authorize(Roles = "Admin")]
         [OpenApiOperation("upload students list", "")]
         public async Task<IActionResult> CreateAsync([FromForm] UploadStudentListFileRequestModel model)
         {

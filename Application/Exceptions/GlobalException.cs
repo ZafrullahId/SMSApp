@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Application.Abstractions.Repositories;
+using Application.Abstractions.Services;
+using Application.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -28,7 +31,6 @@ namespace Application.Exceptions
                 HandleException(context, ex);
             }
         }
-
         private void HandleException(HttpContext context, Exception exception)
         {
             _logger.LogError(exception, exception.Message);

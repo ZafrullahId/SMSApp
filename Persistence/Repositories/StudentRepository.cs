@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Application.Abstractions.Repositories;
 using Domain.Entity;
@@ -26,5 +27,10 @@ namespace Persistence.Repositories
         public async Task<List<Student>> GetStudentsByLevelIdAsync(Guid levelId) => await _Context.Students
             .Where(z => z.LevelId == levelId)
             .Include(x => x.User).ToListAsync();
+        public async Task<Student> LoginStudentAsync(Expression<Func<Student, bool>> expression) => await _Context.Students
+            .Where(expression)
+            .Include(x => x.Department)
+            .Include(x => x.Level)
+            .FirstOrDefaultAsync();
     }
 }

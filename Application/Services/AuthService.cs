@@ -16,8 +16,8 @@ namespace Application.Services
         private string generatedToken = null;
         private readonly IConfiguration _config;
         private readonly IUserRepository _userRepository;
-        private readonly IJWTAuthenticationManager _tokenService;
         private readonly IStudentRepository _studentRepository;
+        private readonly IJWTAuthenticationManager _tokenService;
         public AuthService(IUserRepository userRepository, IConfiguration config, IJWTAuthenticationManager tokenService, IMapper mapper, IStudentRepository studentRepository)
         {
             _mapper = mapper;
@@ -61,23 +61,23 @@ namespace Application.Services
         }
         public async Task<Response<LoginDto>> LoginAsync(StudentLoginRequestModel model)
         {
-            var student = await _studentRepository.GetAsync(x => x.AdmissionNo == model.AdmissionNo && x.User.Password == model.Password);
+            var student = await _studentRepository.LoginStudentAsync(x => x.AdmissionNo == model.AdmissionNo && x.User.Password == model.Password);
             if (student == null) { return new Response<LoginDto> { Message = "Invalid Credentials", Success = false, }; }
 
             var userRoles = await _userRepository.LoginAsync(x => x.UserId == student.UserId);
             if (userRoles is null) { return new Response<LoginDto> { Message = "No role found for this user", Success = false, }; }
 
-            var roleDtos = _mapper.Map<RoleDto>(userRoles.Role);
+
+            var roleDto = _mapper.Map<RoleDto>(userRoles.Role);
             var userDto = _mapper.Map<UserDto>(userRoles.User);
-            userDto.Role = roleDtos;
+            var studentDto = _mapper.Map<StudentDto>(student);
+            userDto.Role = roleDto;
+
             if (userDto.IsProfileComplete)
-            {
                 generatedToken = _tokenService.GenerateToken(_config["Jwt:Key"].ToString(), _config["Jwt:Issuer"].ToString(), userDto);
-            }
             else
-            {
-                generatedToken = _tokenService.GenerateNotCompletedProfileToken(_config["Jwt:Key"].ToString(), _config["Jwt:Issuer"].ToString(), userDto);
-            }
+                generatedToken = _tokenService.GenerateNotCompletedProfileToken(_config["Jwt:Key"].ToString(), _config["Jwt:Issuer"].ToString(), userDto, studentDto);
+
             return new Response<LoginDto>
             {
                 Message = "Valid Credential",
@@ -85,8 +85,7 @@ namespace Application.Services
                 Data = new LoginDto
                 {
                     Token = generatedToken,
-                    Roles =
-                userDto.Role.Name
+                    Roles = userDto.Role.Name
                 }
             };
         }

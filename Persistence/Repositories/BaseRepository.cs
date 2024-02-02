@@ -70,6 +70,10 @@ namespace Persistence.Repositories
         {
             return await _Context.Set<T>().FindAsync(id);
         }
+        public async Task<T> GetAsync()
+        {
+            return await _Context.Set<T>().FirstAsync();
+        }
         public async Task<T> GetAsync(Expression<Func<T, bool>> expression)
         {
             return await _Context.Set<T>().SingleOrDefaultAsync(expression);

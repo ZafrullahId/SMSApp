@@ -36,8 +36,10 @@ namespace Application.Services
         private readonly IUserRoleRepository _userRoleRepository;
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IStaffLevelRepository _staffLevelRepository;
+        private readonly ISchoolProfileRepository _schoolProfileRepository;
         private readonly IJWTAuthenticationManager _jwtAuthenticationManager;
-        public StudentService(IStudentRepository studentRepository, IUserRepository userRepository, ILevelRepository levelRepository, IRoleRepository roleRepository, IMailService emailService, IUserRoleRepository userRoleRepository, IFileUpload fileUpload, IMapper mapper, ISMSService smsservice, IStaffLevelRepository staffLevelRepository, IUriService uriService, IDepartmentRepository departmentRepository, IJWTAuthenticationManager jwtAuthenticationManager, IConfiguration config)
+
+        public StudentService(IStudentRepository studentRepository, IUserRepository userRepository, ILevelRepository levelRepository, IRoleRepository roleRepository, IMailService emailService, IUserRoleRepository userRoleRepository, IFileUpload fileUpload, IMapper mapper, ISMSService smsservice, IStaffLevelRepository staffLevelRepository, IUriService uriService, IDepartmentRepository departmentRepository, IJWTAuthenticationManager jwtAuthenticationManager, IConfiguration config, ISchoolProfileRepository schoolProfileRepository)
         {
             _config = config;
             _mapper = mapper;
@@ -52,6 +54,7 @@ namespace Application.Services
             _userRoleRepository = userRoleRepository;
             _staffLevelRepository = staffLevelRepository;
             _departmentRepository = departmentRepository;
+            _schoolProfileRepository = schoolProfileRepository;
             _jwtAuthenticationManager = jwtAuthenticationManager;
         }
         //public async Task<BaseResponse> CreateAsync(UpdateStudentRequestModel model)
@@ -97,8 +100,8 @@ namespace Application.Services
         public async Task<BaseResponse> CreateAsync(CreateStudentRequestModel model, Guid staffUserId)
         {
             var level = await _levelRepository.GetAsync(x => x.Name == model.LevelName);
-            var exist = await _staffLevelRepository.ExistsAsync(x => x.Staff.UserId == staffUserId && x.LevelId == level.Id);
-            if (!exist) { return new BaseResponse { Message = $"Can Only added by Staff of {level.Name}", Success = false }; }
+            //var exist = await _staffLevelRepository.ExistsAsync(x => x.Staff.UserId == staffUserId && x.LevelId == level.Id);
+            //if (!exist) { return new BaseResponse { Message = $"Can Only added by Staff of {level.Name}", Success = false }; }
 
             var role = await _roleRepository.GetAsync(x => x.Name.ToLower() == "student");
             if (role is null) { return new BaseResponse { Message = "Student role not found", Success = false }; }
@@ -120,7 +123,7 @@ namespace Application.Services
             await _studentRepository.SaveChangesAsync();
             string body = $"Congratulations! You've been successfully added to {department.Name} Department {level.Name}. Your admission number is {student.AdmissionNo} and " +
                 $"your password is {user.Password}. To complete your profile and change your password please visit <url>";
-            var sent = _smsservice.SendSmsAsync(model.PhoneNumber, "18787897387", body);
+            var sent = _smsservice.SendSmsAsync(model.PhoneNumber, "+13413488983", body);
             if (!sent) { return new BaseResponse { Message = "Something went wrong", Success = false }; }
             return new BaseResponse { Message = "Student successfully added", Success = true };
         }
@@ -131,7 +134,9 @@ namespace Application.Services
             if (!userRole.User.IsProfileComplete) { return new Response<Token> { Message = "Profile not Completed", Success = false }; }
             var studentDtoData = _mapper.Map<StudentDto>(userRole.User.Student);
             studentDtoData.User.Role = _mapper.Map<RoleDto>(userRole.Role);
-            var token = _jwtAuthenticationManager.GenerateToken(_config["Jwt:Key"].ToString(), _config["Jwt:Issuer"].ToString(), studentDtoData);
+            var schoolProfile = await _schoolProfileRepository.GetAsync();
+            var profileDto = _mapper.Map<SchoolProfileDto>(schoolProfile);
+            var token = _jwtAuthenticationManager.GenerateToken(_config["Jwt:Key"].ToString(), _config["Jwt:Issuer"].ToString(), studentDtoData, profileDto);
 
             return new Response<Token> { Message = "Student Successfully retrieved", Success = true, Data = new () { AuthToken = token} };
         }
@@ -174,7 +179,7 @@ namespace Application.Services
             student.User.ProfileImage = model.ProfileImage;
             student.User.IsProfileComplete = true;
             await _studentRepository.SaveChangesAsync();
-            return new BaseResponse { Message = "Sussessfully Updated", Success = true, };
+            return new BaseResponse { Message = "Profile successfully updated", Success = true, };
         }
 
         public async Task<BaseResponse> UploadStudentListFileAsync(IFormFile file)
